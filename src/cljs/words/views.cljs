@@ -4,27 +4,20 @@
               [reagent.core :as reagent]))
 
 
-(def name "")
-(def hint nil)
-(def new-hint "")
-(def count "")
-(def word-list ["apple" "banana" "truck"])
-(def selected-word (reagent/atom "banana"))
-
 ;; home
 
 (defn home-title []
-  (let [name (re-frame/subscribe [:name])]
-    (fn []
-      [re-com/title
-       :label "Words"
-       :level :level1])))
+  [re-com/title
+   :label "Words"
+   :level :level1])
 
 (defn name-field []
-  [re-com/input-text
-   :placeholder "Name"
-   :model name
-   :on-change #(reset! name %)])
+  (let [name (re-frame/subscribe [:name])]
+    (fn []
+      [re-com/input-text
+       :placeholder "Name"
+       :model @name
+       :on-change #(re-frame/dispatch [:name %])])))
 
 (defn new-game-button []
   [re-com/hyperlink-href
@@ -47,11 +40,13 @@
    :md-icon-name "zmdi-settings"])
 
 (defn hint-display []
-  [re-com/label
-   :label (if hint
-            hint
-            "No hint to display.")
-   :class "btn btn-primary disabled"])
+  (let [hint (re-frame/subscribe [:hint])]
+    (fn []
+      [re-com/label
+       :label (if @hint
+                @hint
+                "No hint to display.")
+       :class "btn btn-primary disabled"])))
 
 (defn help-modal []
   [re-com/md-icon-button
@@ -63,66 +58,43 @@
    :children [[settings-modal] [hint-display] [help-modal]]])
 
 (defn word-button [word]
-  [re-com/radio-button
-   :label word
-   :value word
-   :model selected-word
-   :style {:visibility "hidden"}
-   :label-class (if (= word @selected-word)
-                  "btn btn-default active"
-                  "btn btn-default")
-   :on-change #(reset! selected-word word)])
+  (let [selected-word (re-frame/subscribe [:selected-word])]
+    [re-com/radio-button
+     :label word
+     :value word
+     :model selected-word
+     :style {:visibility "hidden"}
+     :label-class (str "btn btn-default"
+                       (if (= word @selected-word)
+                         " active" ""))
+     :on-change #(re-frame/dispatch [:selected-word word])]))
 
 (defn game-board []
-  [re-com/h-box
-   :gap "0.2mm"
-   :children (doall (map word-button word-list))])
-
-(defn- radio-clicked
-  [selections item-id required?]
-  (if (and required? (selections item-id))
-    selections  ;; prevent unselect of radio
-    (if (selections item-id) #{} #{item-id})))
-
-(defn word-button-renderer
-  [item id-fn selections on-change disabled? label-fn required? as-exclusions?]
-  (let [item-id (id-fn item)]
-    [re-com/box
-     :attr {:on-click (re-com/handler-fn (when-not disabled?
-                                    (on-change (radio-clicked selections item-id required?))))}
-     :child [re-com/radio-button
-             :model (first selections)
-             :value item-id
-             :on-change #()                                 ;; handled by enclosing box
-             :disabled? disabled?
-             :style {:display "none"}
-             :label-class (if (selections item-id)
-                            "btn btn-default active"
-                            "btn btn-default")
-             :label item-id]]))
-
-;; (defn game-board []
-;;   [re-com/selection-list
-;;    :choices (map #(hash-map :id %) word-list)
-;;    :model selected-word
-;;    :multi-select? false
-;;    :required? true
-;;    :item-renderer word-button-renderer
-;;    :on-change #(reset! selected-word %)])
+  (let [word-list (re-frame/subscribe [:word-list])]
+    (fn []
+      [re-com/h-box
+       :gap "0.2mm"
+       :children (doall (map word-button @word-list))])))
 
 (defn hint-input []
-  [re-com/h-box
-   :gap "0.5em"
-   :children [[re-com/input-text
-               :placeholder "Hint"
-               :model new-hint
-               :on-change #(reset! new-hint %)]
-              [re-com/input-text
-               :placeholder "Count"
-               :model count
-               :on-change #(reset! count %)]
-              [re-com/button
-               :label "Submit"]]])
+  (let [count (re-frame/subscribe [:count])
+        new-hint (re-frame/subscribe [:new-hint])]
+    (fn []
+      [re-com/h-box
+       :gap "0.5em"
+       :children [[re-com/input-text
+                   :placeholder "Hint"
+                   :model @new-hint
+                   :on-change #(re-frame/dispatch [:new-hint %])]
+                  [re-com/input-text
+                   :placeholder "Count"
+                   :model @count
+                   :on-change #(re-frame/dispatch [:count %])]
+                  [re-com/button
+                   :label "Submit"
+                   :on-click #(do (re-frame/dispatch [:new-hint ""])
+                                  (re-frame/dispatch [:count ""])
+                                  (re-frame/dispatch [:example/test-rapid-push]))]]])))
 
 (defn game-panel []
   [re-com/v-box

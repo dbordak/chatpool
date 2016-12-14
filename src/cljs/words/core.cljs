@@ -5,7 +5,8 @@
               [words.subs]
               [words.routes :as routes]
               [words.views :as views]
-              [words.config :as config]))
+              [words.config :as config]
+              [words.ws :as ws]))
 
 
 (defn dev-setup []
@@ -21,4 +22,5 @@
   (routes/app-routes)
   (re-frame/dispatch-sync [:initialize-db])
   (dev-setup)
-  (mount-root))
+  (mount-root)
+  (ws/start-router!))

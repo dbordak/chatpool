@@ -8,7 +8,11 @@
                  [secretary "1.2.3"]
                  [compojure "1.5.0"]
                  [yogthos/config "0.8"]
-                 [ring "1.4.0"]]
+                 [ring "1.4.0"]
+                 [ring/ring-defaults "0.2.1"]
+                 [http-kit "2.2.0"]
+                 [com.taoensso/sente "1.11.0"]
+                 [com.taoensso/timbre "4.7.4"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
 

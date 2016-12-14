@@ -1,9 +1,14 @@
 (ns words.server
-  (:require [words.handler :refer [handler]]
+  (:require [words.handler :refer [handler start-router! start-example-broadcaster!]]
             [config.core :refer [env]]
-            [ring.adapter.jetty :refer [run-jetty]])
+            [org.httpkit.server :refer [run-server]])
   (:gen-class))
 
- (defn -main [& args]
-   (let [port (Integer/parseInt (or (env :port) "3000"))]
-     (run-jetty handler {:port port :join? false})))
+(defn start-server! []
+  (let [port (Integer/parseInt (or (env :port) "3000"))]
+    (run-server handler {:port port :join? false})))
+
+(defn -main [& args]
+  (start-server!)
+  (start-router!)
+  (start-example-broadcaster!))
