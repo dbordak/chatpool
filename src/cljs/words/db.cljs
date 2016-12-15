@@ -2,9 +2,10 @@
 
 (def default-db
   {:name ""
-   :message ""
+   :messages []
    :hint nil
-   :new-hint ""
-   :count ""
+   :new-hint {:text ""
+              :count ""}
    :word-list ["apple" "banana" "truck"]
-   :selected-word "banana"})
+   :selected-word "banana"
+   :chat? true})

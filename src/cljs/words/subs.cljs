@@ -36,3 +36,13 @@
  :word-list
  (fn [db]
    (:word-list db)))
+
+(re-frame/reg-sub
+ :messages
+ (fn [db]
+   (:messages db)))
+
+(re-frame/reg-sub
+ :chat?
+ (fn [db]
+   (:chat? db)))

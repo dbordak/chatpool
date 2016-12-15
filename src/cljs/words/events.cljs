@@ -14,11 +14,6 @@
    (assoc db :active-panel active-panel)))
 
 (re-frame/reg-event-db
- :test/reply
- (fn [db msg]
-   (assoc db :message msg)))
-
-(re-frame/reg-event-db
  :test/send
  (fn [db [_ msg]]
    (chsk-send! [:test/send msg])
@@ -44,14 +39,33 @@
 (re-frame/reg-event-db
  :new-hint
  (fn [db [_ v]]
-   (assoc db :new-hint v)))
-
-(re-frame/reg-event-db
- :count
- (fn [db [_ v]]
-   (assoc db :count v)))
+   (assoc db :new-hint
+          (merge (:new-hint db) v))))
 
 (re-frame/reg-event-db
  :selected-word
  (fn [db [_ v]]
    (assoc db :selected-word v)))
+
+;;Add the new message to the front so we don't need to reverse the
+;;list for display.
+(re-frame/reg-event-db
+ :new-message
+ (fn [db [_ v]]
+   (assoc db :messages
+          (cons v (:messages db)))))
+
+(re-frame/reg-event-db
+ :enable-chat
+ (fn [db]
+   (assoc db :chat? true)))
+
+(re-frame/reg-event-db
+ :disable-chat
+ (fn [db]
+   (assoc db :chat? false)))
+
+(re-frame/reg-event-db
+ :toggle-chat
+ (fn [db]
+   (assoc db :chat? (not (:chat? db)))))

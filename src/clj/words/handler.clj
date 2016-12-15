@@ -1,7 +1,7 @@
 (ns words.handler
   (:require [compojure.core :refer [GET POST defroutes]]
             [compojure.route :refer [resources]]
-            [ring.util.response :refer [resource-response]]
+            [ring.util.response :refer [resource-response content-type]]
             [clojure.core.async :as async :refer (<! <!! >! >!! put! chan go go-loop)]
             [taoensso.timbre :as timbre :refer (tracef debugf infof warnf errorf)]
             [taoensso.sente :as sente]
@@ -21,9 +21,12 @@
   )
 
 (defroutes routes
-  (GET "/" [] (resource-response "index.html" {:root "public"}))
+  (GET "/" [] (content-type
+               (resource-response "index.html" {:root "public"})
+               "text/html"))
   (GET "/chsk" req (ring-ajax-get-or-ws-handshake req))
-  (POST "/chsk" req (ring-ajax-post req)))
+  (POST "/chsk" req (ring-ajax-post req))
+  (resources "/"))
 
 (def handler (wrap-defaults #'routes site-defaults))
 (def dev-handler (wrap-reload handler))

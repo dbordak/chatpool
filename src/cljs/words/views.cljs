@@ -77,29 +77,67 @@
        :children (doall (map word-button @word-list))])))
 
 (defn hint-input []
-  (let [count (re-frame/subscribe [:count])
-        new-hint (re-frame/subscribe [:new-hint])]
+  (let [new-hint (re-frame/subscribe [:new-hint])]
     (fn []
       [re-com/h-box
        :gap "0.5em"
        :children [[re-com/input-text
                    :placeholder "Hint"
-                   :model @new-hint
-                   :on-change #(re-frame/dispatch [:new-hint %])]
+                   :model (:text @new-hint)
+                   :on-change #(re-frame/dispatch [:new-hint {:text %}])]
                   [re-com/input-text
                    :placeholder "Count"
-                   :model @count
-                   :on-change #(re-frame/dispatch [:count %])]
+                   :model (:count @new-hint)
+                   :width "5em" ; number input, only need it to be as
+                                ; big as the placeholder text.
+                   :on-change #(re-frame/dispatch [:new-hint {:count %}])]
                   [re-com/button
                    :label "Submit"
-                   :on-click #(do (re-frame/dispatch [:new-hint ""])
-                                  (re-frame/dispatch [:count ""])
-                                  (re-frame/dispatch [:example/test-rapid-push]))]]])))
+                   :on-click #(do (re-frame/dispatch [:new-hint {:text "" :count ""}])
+                                  ;(re-frame/dispatch [:example/test-rapid-push])
+                                  (re-frame/dispatch [:toggle-chat])
+                                  (re-frame/dispatch [:new-message "1"]))]]])))
 
 (defn game-panel []
   [re-com/v-box
    :gap "1em"
    :children [[top-bar] [game-board] [hint-input]]])
+
+;; Chat stuff
+
+(defn chat-message [text]
+  [re-com/label
+   :label text])
+
+(defn chat-box []
+  (let [messages (re-frame/subscribe [:messages])]
+    (fn []
+      [re-com/scroller
+       :height "100%"
+       :child [re-com/v-box
+               :children (doall (map chat-message @messages))]])))
+
+(defn chat-input []
+  (let [new-message ""]
+    (fn []
+      [re-com/h-box
+       :children [[re-com/label
+                   :label "input goes here"]]])))
+
+(defn chat-panel []
+  [re-com/v-box
+   :width "100%"
+   :children [[chat-box] [chat-input]]])
+
+(defn meta-chat-panel [other-panel]
+  [re-com/h-split
+   :margin "0"
+   :height "100vh"
+   :initial-split 70
+   :panel-1 [re-com/scroller
+             :height "100%"
+             :child [other-panel]]
+   :panel-2 [chat-panel]])
 
 ;; main
 
@@ -113,8 +151,18 @@
   [panels panel-name])
 
 (defn main-panel []
-  (let [active-panel (re-frame/subscribe [:active-panel])]
+  (let [active-panel (re-frame/subscribe [:active-panel])
+        chat? (re-frame/subscribe [:chat?])]
     (fn []
-      [re-com/v-box
-       :height "100%"
-       :children [[panels @active-panel]]])))
+      (if @chat?
+        [re-com/h-split
+         :margin "0"
+         :height "100vh"
+         :initial-split 70
+         :panel-1 [re-com/scroller
+                   :height "100%"
+                   :child [panels @active-panel]]
+         :panel-2 [chat-panel]]
+        [re-com/v-box
+         :height "100%"
+         :children [[panels @active-panel]]]))))
