@@ -3,19 +3,14 @@
     (:require [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
- :name
- (fn [db]
-   (:name db)))
-
-(re-frame/reg-sub
  :active-panel
  (fn [db _]
    (:active-panel db)))
 
 (re-frame/reg-sub
- :new-hint
+ :hint-input
  (fn [db]
-   (:new-hint db)))
+   (:hint-input db)))
 
 (re-frame/reg-sub
  :count
@@ -38,11 +33,31 @@
    (:word-list db)))
 
 (re-frame/reg-sub
- :messages
+ :user
  (fn [db]
-   (:messages db)))
+   (:user db)))
 
 (re-frame/reg-sub
- :chat?
+ :chat
  (fn [db]
-   (:chat? db)))
+   (:chat db)))
+
+(re-frame/reg-sub
+ :chat/msg-input
+ (fn [db]
+   (-> db :chat :msg-input)))
+
+(re-frame/reg-sub
+ :chat/msg-list
+ (fn [db]
+   (-> db :chat :msg-list)))
+
+(re-frame/reg-sub
+ :chat/enabled?
+ (fn [db]
+   (-> db :chat :enabled?)))
+
+(re-frame/reg-sub
+ :chat/ready?
+ (fn [db]
+   (-> db :chat :ready?)))

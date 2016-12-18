@@ -1,6 +1,7 @@
 (ns words.events
     (:require [re-frame.core :as re-frame]
               [words.db :as db]
+              [taoensso.timbre :as timbre]
               [words.ws :refer [chsk-send!]]))
 
 (re-frame/reg-event-db
@@ -20,44 +21,67 @@
    db))
 
 (re-frame/reg-event-db
-
-(re-frame/reg-event-db
-
-(re-frame/reg-event-db
- :name
+ :user
  (fn [db [_ v]]
-   (assoc db :name v)))
+   (assoc db :user
+          (merge (:user db) v))))
 
 (re-frame/reg-event-db
- :new-hint
+ :user/name
  (fn [db [_ v]]
-   (assoc db :new-hint
-          (merge (:new-hint db) v))))
+   (assoc-in db [:user :name] v)))
+
+(re-frame/reg-event-db
+ :user/email
+ (fn [db [_ v]]
+   (assoc-in db [:user :email] v)))
+
+(re-frame/reg-event-db
+ :hint-input-changed
+ (fn [db [_ v]]
+   (assoc db :hint-input
+          (merge (:hint-input db) v))))
+
+(re-frame/reg-event-db
+ :chat/msg-input
+ (fn [db [_ v]]
+   (assoc-in db [:chat :msg-input] v)))
 
 (re-frame/reg-event-db
  :selected-word
  (fn [db [_ v]]
    (assoc db :selected-word v)))
 
-;;Add the new message to the front so we don't need to reverse the
-;;list for display.
 (re-frame/reg-event-db
- :new-message
+ :chat/recv-msg
+ (fn [db [_ from msg]]
+   (assoc-in db [:chat :msg-list]
+          (conj (-> db :chat :msg-list)
+                {:name from :body msg}))))
+
+(re-frame/reg-event-db
+ :chat/enabled?
  (fn [db [_ v]]
-   (assoc db :messages
-          (cons v (:messages db)))))
+   (assoc-in db [:chat :enabled?] v)))
 
 (re-frame/reg-event-db
- :enable-chat
- (fn [db]
-   (assoc db :chat? true)))
+ :chat/ready?
+ (fn [db [_ v]]
+   (assoc-in db [:chat :ready?] v)))
 
 (re-frame/reg-event-db
- :disable-chat
- (fn [db]
-   (assoc db :chat? false)))
+ :chat/send-msg
+ (fn [db _]
+   (chsk-send! [:chat/msg (-> db :chat :msg-input)])
+   (assoc-in db [:chat :msg-input] "")))
 
 (re-frame/reg-event-db
- :toggle-chat
- (fn [db]
-   (assoc db :chat? (not (:chat? db)))))
+ :chat/send-user-info
+ (fn [db _]
+   (chsk-send! [:chat/user (:user db)] 5000
+               (fn [cb-reply]
+                 (when cb-reply
+                   (re-frame/dispatch [:chat/ready? true]))))
+   ;; not going to clear the forms since we might want these values,
+   ;; and these <input>s disappear as soon as they're set
+   db))

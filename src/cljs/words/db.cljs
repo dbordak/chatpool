@@ -1,11 +1,14 @@
 (ns words.db)
 
 (def default-db
-  {:name ""
-   :messages []
-   :hint nil
-   :new-hint {:text ""
-              :count ""}
+  {:hint nil
+   :hint-input {:text ""
+                :count ""}
    :word-list ["apple" "banana" "truck"]
    :selected-word "banana"
-   :chat? true})
+   :user {:name ""
+          :email ""}
+   :chat {:enabled? true
+          :ready? false
+          :msg-input ""
+          :msg-list (vector)}})

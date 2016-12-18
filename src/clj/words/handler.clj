@@ -59,6 +59,25 @@
     (when ?reply-fn
       (?reply-fn {:umatched-event-as-echoed-from-from-server event}))))
 
+(defmethod -event-msg-handler :chat/msg
+  [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (debugf "Chat message request: %s" (str ring-req))
+  (let [uids (:any @connected-uids)]
+    (doseq [to-uid uids]
+      (chsk-send! to-uid
+                  [:chat/msg
+                   {:what-is-this "A chat message"
+                    :how-often "Whenever one is received"
+                    :to-whom to-uid
+                    :from uid
+                    :msg ?data}]))))
+
+(defmethod -event-msg-handler :chat/user
+  [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (debugf "new user: %s" (:name ?data))
+  (when ?reply-fn
+    (?reply-fn true)))
+
 ;; TODO Add your (defmethod -event-msg-handler <event-id> [ev-msg] <body>)s here...
 
 ;;;; Sente event router (our `event-msg-handler` loop)
