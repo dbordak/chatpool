@@ -15,6 +15,16 @@
   (def chsk-state state)   ; Watchable, read-only atom
   )
 
+(defmulti push-msg-handler (fn [[id _]] id))
+
+(defmethod push-msg-handler :default
+  [[_ data]]
+  (timbre/debug "Unhandled event: " _ data))
+
+(defmethod push-msg-handler :chat/msg
+  [[_ {:as data :keys [from msg]}]]
+  (dispatch [:chat/recv-msg from msg]))
+
 (defmulti -event-msg-handler
   "Multimethod to handle Sente `event-msg`s"
   :id)
@@ -38,7 +48,7 @@
 
 (defmethod -event-msg-handler :chsk/recv
   [{:as ev-msg :keys [?data]}]
-  (timbre/debug "Push event from server: " ?data))
+  (push-msg-handler ?data))
 
 (defmethod -event-msg-handler :chsk/handshake
   [{:as ev-msg :keys [?data]}]

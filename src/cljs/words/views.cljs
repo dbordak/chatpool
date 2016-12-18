@@ -1,7 +1,8 @@
 (ns words.views
     (:require [re-frame.core :as re-frame]
               [re-com.core :as re-com]
-              [reagent.core :as reagent]))
+              [reagent.core :as reagent]
+              [words.chat :as chat]))
 
 
 ;; home
@@ -10,14 +11,6 @@
   [re-com/title
    :label "Words"
    :level :level1])
-
-(defn name-field []
-  (let [name (re-frame/subscribe [:name])]
-    (fn []
-      [re-com/input-text
-       :placeholder "Name"
-       :model @name
-       :on-change #(re-frame/dispatch [:name %])])))
 
 (defn new-game-button []
   [re-com/hyperlink-href
@@ -31,7 +24,7 @@
    :children [[home-title]
               [re-com/h-box
                :gap "0.5em"
-               :children [[name-field] [new-game-button]]]]])
+               :children [[new-game-button]]]]])
 
 ;; game
 
@@ -77,67 +70,28 @@
        :children (doall (map word-button @word-list))])))
 
 (defn hint-input []
-  (let [new-hint (re-frame/subscribe [:new-hint])]
+  (let [new-hint (re-frame/subscribe [:hint-input])]
     (fn []
       [re-com/h-box
        :gap "0.5em"
        :children [[re-com/input-text
                    :placeholder "Hint"
                    :model (:text @new-hint)
-                   :on-change #(re-frame/dispatch [:new-hint {:text %}])]
+                   :on-change #(re-frame/dispatch [:hint-input-changed {:text %}])]
                   [re-com/input-text
                    :placeholder "Count"
                    :model (:count @new-hint)
                    :width "5em" ; number input, only need it to be as
                                 ; big as the placeholder text.
-                   :on-change #(re-frame/dispatch [:new-hint {:count %}])]
+                   :on-change #(re-frame/dispatch [:hint-input-changed {:count %}])]
                   [re-com/button
                    :label "Submit"
-                   :on-click #(do (re-frame/dispatch [:new-hint {:text "" :count ""}])
-                                  ;(re-frame/dispatch [:example/test-rapid-push])
-                                  (re-frame/dispatch [:toggle-chat])
-                                  (re-frame/dispatch [:new-message "1"]))]]])))
+                   :on-click #(do (re-frame/dispatch [:hint-input-changed {:text "" :count ""}]))]]])))
 
 (defn game-panel []
   [re-com/v-box
    :gap "1em"
    :children [[top-bar] [game-board] [hint-input]]])
-
-;; Chat stuff
-
-(defn chat-message [text]
-  [re-com/label
-   :label text])
-
-(defn chat-box []
-  (let [messages (re-frame/subscribe [:messages])]
-    (fn []
-      [re-com/scroller
-       :height "100%"
-       :child [re-com/v-box
-               :children (doall (map chat-message @messages))]])))
-
-(defn chat-input []
-  (let [new-message ""]
-    (fn []
-      [re-com/h-box
-       :children [[re-com/label
-                   :label "input goes here"]]])))
-
-(defn chat-panel []
-  [re-com/v-box
-   :width "100%"
-   :children [[chat-box] [chat-input]]])
-
-(defn meta-chat-panel [other-panel]
-  [re-com/h-split
-   :margin "0"
-   :height "100vh"
-   :initial-split 70
-   :panel-1 [re-com/scroller
-             :height "100%"
-             :child [other-panel]]
-   :panel-2 [chat-panel]])
 
 ;; main
 
@@ -152,7 +106,8 @@
 
 (defn main-panel []
   (let [active-panel (re-frame/subscribe [:active-panel])
-        chat? (re-frame/subscribe [:chat?])]
+        chat? (re-frame/subscribe [:chat/enabled?])
+        chat-ready? (re-frame/subscribe [:chat/ready?])]
     (fn []
       (if @chat?
         [re-com/h-split
@@ -162,7 +117,7 @@
          :panel-1 [re-com/scroller
                    :height "100%"
                    :child [panels @active-panel]]
-         :panel-2 [chat-panel]]
+         :panel-2 [(if @chat-ready? chat/panel chat/name-form)]]
         [re-com/v-box
          :height "100%"
          :children [[panels @active-panel]]]))))
