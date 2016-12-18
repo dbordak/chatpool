@@ -1,5 +1,5 @@
 (ns words.server
-  (:require [words.handler :refer [handler start-router! start-example-broadcaster!]]
+  (:require [words.handler :refer [handler start-router!]]
             [config.core :refer [env]]
             [org.httpkit.server :refer [run-server]])
   (:gen-class))
@@ -10,5 +10,4 @@
 
 (defn -main [& args]
   (start-server!)
-  (start-router!)
-  (start-example-broadcaster!))
+  (start-router!))

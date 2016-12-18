@@ -20,16 +20,8 @@
    db))
 
 (re-frame/reg-event-db
- :example/toggle-broadcast
- (fn [db _]
-   (chsk-send! [:example/toggle-broadcast])
-   db))
 
 (re-frame/reg-event-db
- :example/test-rapid-push
- (fn [db _]
-   (chsk-send! [:example/test-rapid-push])
-   db))
 
 (re-frame/reg-event-db
  :name
