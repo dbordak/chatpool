@@ -15,6 +15,8 @@
   - cust table [name, email, id, active-panel?]
   - message table [from, body, conv-id]
   - rating table [cust, rep, message, score]
+* UPDATE: split names into first/last
+  - reflect this in UI or just hide it?
 * Make it look better
 * Session persistence?
 * Docker
