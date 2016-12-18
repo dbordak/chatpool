@@ -1,0 +1,28 @@
+* Show chat invitation when pool>0
+* Email transcript
+  - figure out how to use sendmail?
+* Rep rating
+  - requires an additional table (see below)
+* Provide active-panel info to rep
+* API
+  - /api/v1/rep/list        GET list of reps
+  - /api/v1/rep/name/:id    GET, POST rep's name
+  - /api/v1/rep/conv/:id    GET list of conversations involving rep :id
+  - /api/v1/conv/:id        GET, DELETE conversation
+* DB
+  - rep table [name, id]
+  - conv table [user-id, rep-id, status]
+  - cust table [name, email, id, active-panel?]
+  - message table [from, body, conv-id]
+  - rating table [cust, rep, message, score]
+* Make it look better
+* Session persistence?
+* Docker
+* Heroku?
+* Confirmation message (modal) when quitting chat. Verify intent and
+  desire for transcript.
+
+
+Complete:
+Primary 2 & 3
+Secondary 4
