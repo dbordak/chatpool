@@ -1,5 +1,6 @@
 (ns chatpool.server
-  (:require [chatpool.handler :refer [handler start-router!]]
+  (:require [chatpool.handler :refer [handler]]
+            [chatpool.ws :refer [start-router!]]
             [config.core :refer [env]]
             [org.httpkit.server :refer [run-server]])
   (:gen-class))
