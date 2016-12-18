@@ -1,12 +1,13 @@
 (ns chatpool.db)
 
 (def default-db
-  {:hint nil
+  {:active-panel :home-panel
+   :hint nil
    :hint-input {:text ""
                 :count ""}
    :user {:name ""
           :email ""}
-   :chat {:enabled? true
+   :chat {:enabled? false
           :ready? false
           :msg-input ""
           :msg-list (vector)}})

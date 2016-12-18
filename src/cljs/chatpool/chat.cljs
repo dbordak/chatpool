@@ -59,8 +59,14 @@
         :class "form-group"
         :style {:margin "10px 0"}
         :on-change #(re-frame/dispatch-sync [:user/email %])]
-       [re-com/button
-        :label "Start Chat"]])))
+       [re-com/h-box
+        :style {:justify-content "space-between"}
+        :children [[re-com/button
+                    :label "Start Chat"]
+                   [re-com/button
+                    :label "Cancel"
+                    :on-click #(do (re-frame/dispatch [:chat/enabled? false])
+                                   (.preventDefault %))]]]])))
 
 (defn panel []
   [re-com/v-box
