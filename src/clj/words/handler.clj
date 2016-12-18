@@ -48,9 +48,7 @@
 (defn event-msg-handler
   "Wraps `-event-msg-handler` with logging, error catching, etc."
   [{:as ev-msg :keys [id ?data event]}]
-  (-event-msg-handler ev-msg) ; Handle event-msgs on a single thread
-  ;; (future (-event-msg-handler ev-msg)) ; Handle event-msgs on a thread pool
-  )
+  (future (-event-msg-handler ev-msg)))
 
 (defmethod -event-msg-handler
   :default ; Default/fallback case (no other matching handler)
