@@ -1,5 +1,5 @@
-(ns words.server
-  (:require [words.handler :refer [handler start-router!]]
+(ns chatpool.server
+  (:require [chatpool.handler :refer [handler start-router!]]
             [config.core :refer [env]]
             [org.httpkit.server :refer [run-server]])
   (:gen-class))

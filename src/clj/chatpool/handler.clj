@@ -1,4 +1,4 @@
-(ns words.handler
+(ns chatpool.handler
   (:require [compojure.core :refer [GET POST defroutes]]
             [compojure.route :refer [resources]]
             [ring.util.response :refer [resource-response content-type]]

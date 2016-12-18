@@ -1,4 +1,4 @@
-(ns words.chat
+(ns chatpool.chat
   (:require [re-frame.core :as re-frame]
             [re-com.core :as re-com]
             [reagent.core :as reagent]))

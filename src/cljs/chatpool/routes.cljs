@@ -1,4 +1,4 @@
-(ns words.routes
+(ns chatpool.routes
     (:require-macros [secretary.core :refer [defroute]])
     (:import goog.History)
     (:require [secretary.core :as secretary]
@@ -21,8 +21,8 @@
   (defroute "/" []
     (re-frame/dispatch [:set-active-panel :home-panel]))
 
-  (defroute "/game" []
-    (re-frame/dispatch [:set-active-panel :game-panel]))
+  (defroute "/about" []
+    (re-frame/dispatch [:set-active-panel :about-panel]))
 
 
   ;; --------------------

@@ -1,20 +1,23 @@
-(ns words.core
+(ns chatpool.core
     (:require [reagent.core :as reagent]
               [re-frame.core :as re-frame]
-              [words.events]
-              [words.subs]
-              [words.routes :as routes]
-              [words.views :as views]
-              [words.config :as config]
-              [words.ws :as ws]))
+              [re-frisk.core :refer [enable-re-frisk!]]
+              [chatpool.events]
+              [chatpool.subs]
+              [chatpool.routes :as routes]
+              [chatpool.views :as views]
+              [chatpool.config :as config]
+              [chatpool.ws :as ws]))
 
 
 (defn dev-setup []
   (when config/debug?
     (enable-console-print!)
+    (enable-re-frisk!)
     (println "dev mode")))
 
 (defn mount-root []
+  (re-frame/clear-subscription-cache!)
   (reagent/render [views/main-panel]
                   (.getElementById js/document "app")))
 

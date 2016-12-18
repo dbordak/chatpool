@@ -1,4 +1,4 @@
-(ns words.subs
+(ns chatpool.subs
     (:require-macros [reagent.ratom :refer [reaction]])
     (:require [re-frame.core :as re-frame]))
 
@@ -21,16 +21,6 @@
  :hint
  (fn [db]
    (:hint db)))
-
-(re-frame/reg-sub
- :selected-word
- (fn [db]
-   (:selected-word db)))
-
-(re-frame/reg-sub
- :word-list
- (fn [db]
-   (:word-list db)))
 
 (re-frame/reg-sub
  :user

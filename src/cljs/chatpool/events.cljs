@@ -1,13 +1,13 @@
-(ns words.events
+(ns chatpool.events
     (:require [re-frame.core :as re-frame]
-              [words.db :as db]
               [taoensso.timbre :as timbre]
-              [words.ws :refer [chsk-send!]]))
+              [chatpool.db :as db]
+              [chatpool.ws :refer [chsk-send!]]))
 
 (re-frame/reg-event-db
  :initialize-db
- (fn  [db _]
-   (merge db db/default-db)))
+ (fn  [_ _]
+   db/default-db))
 
 (re-frame/reg-event-db
  :set-active-panel
@@ -46,11 +46,6 @@
  :chat/msg-input
  (fn [db [_ v]]
    (assoc-in db [:chat :msg-input] v)))
-
-(re-frame/reg-event-db
- :selected-word
- (fn [db [_ v]]
-   (assoc db :selected-word v)))
 
 (re-frame/reg-event-db
  :chat/recv-msg

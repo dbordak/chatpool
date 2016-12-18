@@ -1,4 +1,4 @@
-(ns words.ws ; .cljs
+(ns chatpool.ws
   (:require-macros
    [cljs.core.async.macros :as asyncm :refer (go go-loop)])
   (:require
