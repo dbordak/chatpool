@@ -1,6 +1,7 @@
 (ns chatpool.handler
   (:require [compojure.core :refer [GET POST DELETE defroutes context]]
             [compojure.route :refer [resources]]
+            [compojure.coercions :refer [as-int]]
             [ring.util.response :refer [resource-response content-type]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults api-defaults]]
             [ring.middleware.reload :refer [wrap-reload]]
@@ -19,7 +20,7 @@
   (context "/rep/list" []
            (GET "/" [] (db/list-reps))
            (GET "/idle" [] (db/list-idle-reps)))
-  (context "/rep/:rep-id{[0-9]+}" [rep-id]
+  (context "/rep/:rep-id" [rep-id :<< as-int]
            (GET "/name" [] (db/get-rep-name {:id rep-id}))
            (POST "/name" [first-name last-name]
                  (db/update-rep-name! {:id rep-id
@@ -27,7 +28,7 @@
                                        :last_name last-name})
                  "")
            (GET "/conv" [] (db/get-rep-convs {:id rep-id})))
-  (context "/conv/:conv-id{[0-9]+}" [conv-id]
+  (context "/conv/:conv-id" [conv-id :<< as-int]
            (GET "/" [] (db/get-conv {:id conv-id}))
            (DELETE "/" []
                    (db/delete-conv! {:id conv-id})
