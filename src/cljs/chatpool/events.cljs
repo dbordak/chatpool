@@ -48,6 +48,13 @@
    (assoc-in db [:chat :msg-input] v)))
 
 (re-frame/reg-event-db
+ :scroll-chatbox
+ (fn [db _]
+   (let [scroller (.getElementById js/document "chat-scrollbox")]
+     (set! (.-scrollTop scroller) (.-scrollHeight scroller)))
+   db))
+
+(re-frame/reg-event-db
  :chat/recv-msg
  (fn [db [_ from msg]]
    (assoc-in db [:chat :msg-list]

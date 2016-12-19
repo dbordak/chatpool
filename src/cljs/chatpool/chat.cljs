@@ -10,8 +10,10 @@
   "Container for making the chat separately scrollable"
   (let [msg-list (re-frame/subscribe [:chat/msg-list])]
     (fn []
+      (re-frame/dispatch [:scroll-chatbox])
       [re-com/scroller
        :height "100%"
+       :attr {:id "chat-scrollbox"}
        :child [re-com/v-box
                :children (doall (map render-msg @msg-list))]])))
 
