@@ -20,9 +20,15 @@ select *
 from convs
 where rep_id = :id;
 
+-- name: get-rep-conv
+select *
+from convs
+where rep_id = :id
+and status = "active";
+
 -- name: create-cust-table!
 create table custs (
-  id         text,
+  uid        text,
   first_name varchar(40),
   last_name  varchar(40),
   email      varchar(255)

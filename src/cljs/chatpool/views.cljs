@@ -1,6 +1,7 @@
 (ns chatpool.views
     (:require [re-frame.core :as re-frame]
               [re-com.core :as re-com]
+              [taoensso.encore :as encore]
               [chatpool.chat :as chat]))
 
 
@@ -12,6 +13,7 @@
 (defn home-panel []
   [re-com/v-box
    :gap "1em"
+   :margin "1em"
    :children [[:p "Hello World"] [start-chat-button]]])
 
 (defn about-title []
@@ -22,8 +24,27 @@
 (defn about-panel []
   [re-com/v-box
    :gap "1em"
+   :margin "1em"
    :children [[about-title] [:p "We do the thing with the stuff."]]])
 
+(defn rep-login-button [rep]
+  [re-com/button
+   :label (str (:first_name rep) " " (:last_name rep))
+   :on-click #(re-frame/dispatch [:rep-login rep])])
+
+(defn login-title []
+  (re-com/title
+   :label "Log in as Representative"
+   :level :level1))
+
+(defn login-panel []
+  (let [rep-list (re-frame/subscribe [:rep-list])]
+    (fn []
+      [re-com/v-box
+       :gap "1em"
+       :margin "1em"
+       :children (cons [login-title]
+                       (doall (map rep-login-button @rep-list)))])))
 
 ;; main
 
@@ -32,7 +53,13 @@
     :home-panel [home-panel]
     :about-panel [about-panel]
     :debug-panel [home-panel]
-    :login-panel [home-panel]
+    :login-panel (do (encore/ajax-lite
+                      "/api/v1/rep/list"
+                      {:method :get :resp-type :edn}
+                      (fn [resp]
+                        (when (:?content resp)
+                          (re-frame/dispatch [:rep-list (:?content resp)]))))
+                     [login-panel])
     [:div]))
 
 (defn show-panel [panel-name]
@@ -64,8 +91,8 @@
                            :label "Home"}
                           {:id :about-panel
                            :label "About"}
-                          {:id :debug-panel
-                           :label "Debug"}
+                          ;; {:id :debug-panel
+                          ;;  :label "Debug"}
                           {:id :login-panel
                            :label "Login"}]]]])))
 
@@ -84,7 +111,9 @@
                    :child [panels @active-panel]]
          :panel-2 [(if @chat-ready? chat/panel chat/name-form)]]
         [re-com/v-box
-         :children [[panels @active-panel]]]))))
+         :children [[panels @active-panel]
+                    ;; TODO: chat availability
+                    ]]))))
 
 (defn main-panel []
   [re-com/v-box

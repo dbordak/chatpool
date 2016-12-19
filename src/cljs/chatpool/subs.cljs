@@ -51,3 +51,8 @@
  :chat/ready?
  (fn [db]
    (-> db :chat :ready?)))
+
+(re-frame/reg-sub
+ :rep-list
+ (fn [db]
+   (:rep-list db)))

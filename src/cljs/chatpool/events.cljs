@@ -80,3 +80,18 @@
    ;; not going to clear the forms since we might want these values,
    ;; and these <input>s disappear as soon as they're set
    db))
+
+(re-frame/reg-event-db
+ :rep-list
+ (fn [db [_ v]]
+   (assoc db :rep-list v)))
+
+(re-frame/reg-event-db
+ :rep-login
+ (fn [db v]
+   (chsk-send! [:chat/rep v] 5000
+               (fn [cb-reply]
+                 (when cb-reply
+                   (re-frame/dispatch [:chat/ready? true])
+                   (re-frame/dispatch [:chat/enabled? true]))))
+   db))

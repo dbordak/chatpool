@@ -6,6 +6,7 @@
          :create true})
 
 (defqueries "sql/chatpool.sql" {:connection db})
+(defqueries "sql/reps.sql" {:connection db})
 
 (defn migrate []
   (create-rep-table!)

@@ -58,6 +58,12 @@
   (when ?reply-fn
     (?reply-fn true)))
 
+(defmethod -event-msg-handler :chat/rep
+  [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (debugf "rep logged in: %s" ?data)
+  (when ?reply-fn
+    (?reply-fn true)))
+
 (defonce router_ (atom nil))
 (defn stop-router! [] (when-let [stop-fn @router_] (stop-fn)))
 (defn start-router! []

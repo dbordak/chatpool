@@ -31,8 +31,8 @@
 
 (defn end-button []
   "Closes the chat panel"
-  [re-com/button
-   :label "End Chat"
+  [re-com/md-icon-button
+   :md-icon-name "zmdi-close"
    :on-click #(re-frame/dispatch [:chat/enabled? false])])
 
 (defn name-form []

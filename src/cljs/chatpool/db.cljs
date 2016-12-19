@@ -10,4 +10,5 @@
    :chat {:enabled? false
           :ready? false
           :msg-input ""
-          :msg-list (vector)}})
+          :msg-list (vector)}
+   :rep-list []})
