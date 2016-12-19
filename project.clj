@@ -14,7 +14,7 @@
                  [ring-middleware-format "0.7.0"]
                  [http-kit "2.2.0"]
                  [yesql "0.5.3"]
-                 [org.xerial/sqlite-jdbc "3.15.1"]
+                 [org.postgresql/postgresql "9.4.1212"]
                  [com.taoensso/sente "1.11.0"]
                  [com.taoensso/encore "2.88.1"]
                  [com.taoensso/timbre "4.7.4"]]

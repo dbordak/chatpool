@@ -1,6 +1,6 @@
 -- name: create-conv-table!
 create table convs (
-  id         integer primary key asc,
+  id         serial primary key,
   cust_uid   text,
   rep_id     integer,
   active     boolean not null
@@ -8,7 +8,7 @@ create table convs (
 
 -- name: create-conv<!
 insert into convs (cust_uid, rep_id, active)
-values (:cust_uid, :rep_id, 1);
+values (:cust_uid, :rep_id, TRUE);
 
 -- name: get-conv
 select *
@@ -32,13 +32,13 @@ where rep_id = :id;
 select *
 from convs
 where rep_id = :id
-and active = 1;
+and active = TRUE;
 
 -- name: get-cust-conv
 select *
 from convs
 where cust_uid = :uid
-and active = 1;
+and active = TRUE;
 
 -- name: get-cust-rep
 select *
@@ -47,11 +47,11 @@ where id in
 (select rep_id
  from convs
  where cust_uid = :uid
- and active = 1);
+ and active = TRUE);
 
 -- name: end-conv!
 update convs
-set active = 0
+set active = FALSE
 where id = :id;
 
 -- name: create-cust-table!

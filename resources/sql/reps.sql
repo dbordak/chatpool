@@ -1,6 +1,6 @@
 -- name: create-rep-table!
 create table reps (
-  id         integer primary key asc,
+  id         serial primary key,
   uid        text,
   first_name varchar(40),
   last_name  varchar(40)
@@ -18,7 +18,7 @@ from reps;
 select *
 from reps
 where uid is not null
-and id not in (select rep_id from convs where active = 1);
+and id not in (select rep_id from convs where active = TRUE);
 
 -- name: get-rep
 select *

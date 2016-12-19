@@ -1,12 +1,5 @@
 (ns user
-  (:require [yesql.core :refer [defqueries]]))
-
-(def db {:dbtype "sqlite"
-         :dbname "chatpool.db"
-         :create true})
-
-(defqueries "sql/chatpool.sql" {:connection db})
-(defqueries "sql/reps.sql" {:connection db})
+  (:require [chatpool.db :refer :all]))
 
 (defn migrate []
   (create-rep-table!)
