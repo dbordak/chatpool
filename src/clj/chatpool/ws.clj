@@ -2,7 +2,8 @@
   (:require [clojure.core.async :as async :refer (<! <!! >! >!! put! chan go go-loop)]
             [taoensso.timbre :as timbre :refer (tracef debugf infof warnf errorf)]
             [taoensso.sente :as sente]
-            [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]))
+            [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]
+            [chatpool.db :as db]))
 
 ;; Sente boilerplate
 (let [{:keys [ch-recv send-fn connected-uids
@@ -41,30 +42,39 @@
 
 (defmethod -event-msg-handler :chat/msg
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (let [uids (:any @connected-uids)]
+  (debugf "Chat message from %s" uid)
+  (let [uids (:any @connected-uids)
+        from (first (db/get-user-name {:uid uid}))]
     (doseq [to-uid uids]
       (chsk-send! to-uid
                   [:chat/msg
                    {:what-is-this "A chat message"
                     :how-often "Whenever one is received"
                     :to-whom to-uid
-                    :from uid
+                    :from (if from
+                            (:first_name from)
+                            "?")
                     :msg ?data}]))))
 
 (defmethod -event-msg-handler :chat/user
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (debugf "new user: %s" (:name ?data))
+  (let [name (:name ?data)
+        email (:email ?data)]
+    (debugf "new user: %s" (:name ?data))
+    (db/create-cust<! {:? [name ""] :email email}))
   (when ?reply-fn
     (?reply-fn true)))
 
 (defmethod -event-msg-handler :rep/login
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (db/rep-online! {:id ?data :uid uid})
   (debugf "rep logged in: %s" ?data)
   (when ?reply-fn
     (?reply-fn true)))
 
 (defmethod -event-msg-handler :rep/logout
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (db/rep-offline! {:id ?data})
   (debugf "rep logged out: %s" ?data)
   (when ?reply-fn
     (?reply-fn true)))

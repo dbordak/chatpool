@@ -3,12 +3,12 @@ create table convs (
   id         integer primary key asc,
   cust_id    text,
   rep_id     integer,
-  status     text
+  active     boolean not null
 );
 
 -- name: create-conv<!
-insert into convs (cust_id, rep_id, status)
-values (:cust_id, :rep_id, "active");
+insert into convs (cust_id, rep_id, active)
+values (:cust_id, :rep_id, 1);
 
 -- name: get-conv
 select *
@@ -24,7 +24,7 @@ where rep_id = :id;
 select *
 from convs
 where rep_id = :id
-and status = "active";
+and status = 1;
 
 -- name: create-cust-table!
 create table custs (
@@ -53,3 +53,12 @@ values (:sender, :body);
 select *
 from msgs
 where conv_id = :id;
+
+-- name: get-user-name
+select first_name
+from reps
+where uid = :uid
+union
+select first_name
+from custs
+where uid = :uid;

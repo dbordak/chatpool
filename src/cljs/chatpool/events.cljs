@@ -111,4 +111,8 @@
  :rep-logout
  (fn [db [_ v]]
    (chsk-send! [:rep/logout (:rep-id db)])
-   (assoc db :rep-id nil)))
+   (re-frame/dispatch [:chat/ready? false])
+   (re-frame/dispatch [:chat/enabled? false])
+   (-> db
+       (assoc :rep-id nil)
+       (assoc-in [:chat :msg-list] (vector)))))
