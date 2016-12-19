@@ -6,8 +6,8 @@
 * Provide active-panel info to rep
 * API
   - /api/v1/rep/list        GET list of reps
-  - /api/v1/rep/name/:id    GET, POST rep's name
-  - /api/v1/rep/conv/:id    GET list of conversations involving rep :id
+  - /api/v1/rep/:id/name    GET, POST rep's name
+  - /api/v1/rep/:id/conv    GET list of conversations involving rep :id
   - /api/v1/conv/:id        GET, DELETE conversation
 * DB
   - rep table [name, id]
