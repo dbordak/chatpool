@@ -18,6 +18,8 @@ where id = :id;
 -- name: delete-conv!
 delete from convs
 where id = :id;
+
+-- name: delete-msgs!
 delete from msgs
 where conv_id = :id;
 
@@ -72,8 +74,8 @@ create table msgs (
 );
 
 -- name: create-msg<!
-insert into msgs (sender, body)
-values (:sender, :body);
+insert into msgs (sender, body, conv_id)
+values (:sender, :body, :id);
 
 -- name: get-conv-msgs
 select *

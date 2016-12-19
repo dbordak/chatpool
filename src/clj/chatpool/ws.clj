@@ -46,9 +46,12 @@
   (let [uids (:any @connected-uids)
         from (first (db/get-user-name {:uid uid}))
         rep (first (db/get-rep-by-uid {:uid uid}))
+        conv (if rep
+               (first (db/get-rep-conv {:id (:id rep)}))
+               (first (db/get-cust-conv {:uid uid})))
         partner (if rep
-                  (:cust_uid (first (db/get-rep-conv {:id (:id rep)})))
-                  (:uid (first (db/get-cust-rep {:uid uid}))))
+                  (:cust_uid conv)
+                  (:uid (first (db/get-rep {:id (:rep_id conv)}))))
         msg [:chat/msg
              {:what-is-this "A chat message"
               :how-often "Whenever one is received"
@@ -56,6 +59,9 @@
                       (:first_name from)
                       "?")
               :msg ?data}]]
+    (db/create-msg<! {:sender (if rep "rep" "cust")
+                      :body ?data
+                      :id (:id conv)})
     (chsk-send! partner msg)
     (chsk-send! uid msg)))
 
