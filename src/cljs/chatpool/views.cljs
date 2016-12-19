@@ -14,7 +14,7 @@
   [re-com/v-box
    :gap "1em"
    :margin "1em"
-   :children [[:p "Hello World"] [start-chat-button]]])
+   :children [[:p "Hello World"]]])
 
 (defn about-title []
   [re-com/title
@@ -38,13 +38,18 @@
    :level :level1))
 
 (defn login-panel []
-  (let [rep-list (re-frame/subscribe [:rep-list])]
+  (let [rep-list (re-frame/subscribe [:rep-list])
+        rep-id (re-frame/subscribe [:rep-id])]
     (fn []
       [re-com/v-box
        :gap "1em"
        :margin "1em"
-       :children (cons [login-title]
-                       (doall (map rep-login-button @rep-list)))])))
+       :children (if @rep-id
+                   [[re-com/title
+                     :label "You are already logged in"
+                     :level :level1]]
+                   (cons [login-title]
+                       (doall (map rep-login-button @rep-list))))])))
 
 ;; main
 
@@ -70,31 +75,34 @@
    :label "Companyname.website"
    :level :level1])
 
-(defn nav-bar []
+(defn page-tabs []
   (let [active-panel (re-frame/subscribe [:active-panel])]
     (fn []
-      [re-com/h-box
-       :style {:justify-content "space-between"
-               :background "#f7f7f9"
-               :border-bottom "1px solid #e1e1e8"
-               :padding "10px"}
-       :children [[re-com/label
-                   :label "Companyname.website"
-                   :style {:font-style "italic"
-                           :font-size "14pt"
-                           :line-height "40px"
-                           :height "40px"}]
-                  [re-com/horizontal-pill-tabs
-                   :model @active-panel
-                   :on-change #(re-frame/dispatch [:set-active-panel %])
-                   :tabs [{:id :home-panel
-                           :label "Home"}
-                          {:id :about-panel
-                           :label "About"}
-                          ;; {:id :debug-panel
-                          ;;  :label "Debug"}
-                          {:id :login-panel
-                           :label "Login"}]]]])))
+      [re-com/horizontal-pill-tabs
+       :model @active-panel
+       :on-change #(re-frame/dispatch [:set-active-panel %])
+       :tabs [{:id :home-panel
+               :label "Home"}
+              {:id :about-panel
+               :label "About"}
+              ;; {:id :debug-panel
+              ;;  :label "Debug"}
+              {:id :login-panel
+               :label "Login"}]])))
+
+(defn nav-bar []
+  [re-com/h-box
+   :style {:justify-content "space-between"
+           :background "#f7f7f9"
+           :border-bottom "1px solid #e1e1e8"
+           :padding "10px"}
+   :children [[re-com/label
+               :label "Companyname.website"
+               :style {:font-style "italic"
+                       :font-size "14pt"
+                       :line-height "40px"
+                       :height "40px"}]
+              [page-tabs]]])
 
 (defn meta-panel []
   (let [active-panel (re-frame/subscribe [:active-panel])
@@ -113,32 +121,40 @@
          :panel-2 [(if @chat-ready? chat/panel chat/name-form)]]
         [re-com/v-box
          :style {:flex "1 1 auto"}
-         :children [[panels @active-panel]
-                    ;; TODO: chat availability
-                    ]]))))
+         :children [[panels @active-panel]]]))))
 
+;; This really needs to be cleaned up
 (defn bottom-banner []
   (let [user (re-frame/subscribe [:user])
         rep-id (re-frame/subscribe [:rep-id])
+        chat? (re-frame/subscribe [:chat/enabled?])
+        idle-rep-list (re-frame/subscribe [:idle-rep-list])
         bar-height "30px"]
     (fn []
-      (if @rep-id
-        [re-com/h-box
-         :gap "1em"
-         :style {:justify-content "center"
-                 :background "#f7f7f9"
-                 :border-top "1px solid #e1e1e8"
-                 :padding "10px"}
-         :children [[re-com/label
-                     :label (str "Welcome, " (:name @user))
-                     :style {:font-size "14pt"
-                             :line-height bar-height
-                             :height bar-height}]
-                    [re-com/hyperlink
-                     :label "Logout"
-                     :style {:line-height bar-height}
-                     :on-click #(re-frame/dispatch [:rep-logout])]]]
-        [:div]))))
+      [re-com/h-box
+       :gap "1em"
+       :style {:justify-content "center"
+               :background "#f7f7f9"
+               :border-top "1px solid #e1e1e8"
+               :display (if (and (not @rep-id) @chat?) "none")
+               :padding "10px"}
+       :children
+       (if @rep-id
+         [[re-com/label
+           :label (str "Welcome, " (:name @user))
+           :style {:font-size "14pt"
+                   :line-height bar-height}]
+          [re-com/hyperlink
+           :label "Logout"
+           :style {:line-height bar-height}
+           :on-click #(re-frame/dispatch [:rep-logout])]]
+         (if (and (not @chat?) (> (count @idle-rep-list) 0))
+           [[re-com/hyperlink
+             :label "Representatives available to chat. Click Here!"
+             :style {:font-size "14pt"
+                     :line-height bar-height}
+             :on-click #(re-frame/dispatch [:chat/enabled? true])]]
+           [[:div]]))])))
 
 (defn main-panel []
   [re-com/v-box

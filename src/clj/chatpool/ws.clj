@@ -44,31 +44,48 @@
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (debugf "Chat message from %s" uid)
   (let [uids (:any @connected-uids)
-        from (first (db/get-user-name {:uid uid}))]
-    (doseq [to-uid uids]
-      (chsk-send! to-uid
-                  [:chat/msg
-                   {:what-is-this "A chat message"
-                    :how-often "Whenever one is received"
-                    :to-whom to-uid
-                    :from (if from
-                            (:first_name from)
-                            "?")
-                    :msg ?data}]))))
+        from (first (db/get-user-name {:uid uid}))
+        rep (first (db/get-rep-by-uid {:uid uid}))
+        partner (if rep
+                  (:cust_uid (first (db/get-rep-conv {:id (:id rep)})))
+                  (:uid (first (db/get-cust-rep {:uid uid}))))
+        msg [:chat/msg
+             {:what-is-this "A chat message"
+              :how-often "Whenever one is received"
+              :from (if from
+                      (:first_name from)
+                      "?")
+              :msg ?data}]]
+    (chsk-send! partner msg)
+    (chsk-send! uid msg)))
 
 (defmethod -event-msg-handler :chat/user
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (let [name (:name ?data)
         email (:email ?data)]
     (debugf "new user: %s" (:name ?data))
-    (db/create-cust<! {:? [name ""] :email email}))
+    (db/create-cust<! {:? [name ""] :email email :uid uid})
+    (let [rep (rand-nth (db/list-idle-reps))]
+      (debugf "pairing with %s" (:first_name rep))
+      (db/create-conv<! {:cust_uid uid :rep_id (:id rep)})))
   (when ?reply-fn
     (?reply-fn true)))
+
+(defn broadcast-idle-list! []
+  (let [uids (:any @connected-uids)]
+    (doseq [to-uid uids]
+      (chsk-send! to-uid
+                  [:idle-reps/update
+                   {:what-is-this "The current list of idle reps"
+                    :how-often "Whenever a rep's online/busy status changes"
+                    :to-whom to-uid
+                    :list (db/list-idle-reps)}]))))
 
 (defmethod -event-msg-handler :rep/login
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (db/rep-online! {:id ?data :uid uid})
   (debugf "rep logged in: %s" ?data)
+  (broadcast-idle-list!)
   (when ?reply-fn
     (?reply-fn true)))
 
@@ -76,6 +93,7 @@
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (db/rep-offline! {:id ?data})
   (debugf "rep logged out: %s" ?data)
+  (broadcast-idle-list!)
   (when ?reply-fn
     (?reply-fn true)))
 

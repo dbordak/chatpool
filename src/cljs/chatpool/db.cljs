@@ -12,4 +12,5 @@
           :msg-input ""
           :msg-list (vector)}
    :rep-list []
+   :idle-rep-list []
    :rep-id nil})

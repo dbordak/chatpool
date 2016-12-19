@@ -2,6 +2,7 @@
     (:require [reagent.core :as reagent]
               [re-frame.core :as re-frame]
               [re-frisk.core :refer [enable-re-frisk!]]
+              [taoensso.encore :as encore]
               [chatpool.events]
               [chatpool.subs]
               [chatpool.routes :as routes]
@@ -24,6 +25,12 @@
 (defn ^:export init []
   (routes/app-routes)
   (re-frame/dispatch-sync [:initialize-db])
+  (encore/ajax-lite
+   "/api/v1/rep/list/idle"
+   {:method :get :resp-type :edn}
+   (fn [resp]
+     (when (:?content resp)
+       (re-frame/dispatch [:idle-rep-list (:?content resp)]))))
   (dev-setup)
   (mount-root)
   (ws/start-router!))

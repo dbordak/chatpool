@@ -3,27 +3,31 @@
             [re-com.core :as re-com]
             [reagent.core :as reagent]))
 
-(defn render-msg [msg]
-  [:span [:span (:name msg)] (str ": " (:body msg))])
+(defn render-msg [name]
+  (fn [msg]
+    [:span {:style {:text-align (if (= (:name msg) name)
+                                  "right" "left")}}
+     [:span (:name msg)] (str ": " (:body msg))]))
 
 (defn container []
   "Container for making the chat separately scrollable"
-  (let [msg-list (re-frame/subscribe [:chat/msg-list])]
+  (let [msg-list (re-frame/subscribe [:chat/msg-list])
+        user (re-frame/subscribe [:user])]
     (fn []
       (re-frame/dispatch [:scroll-chatbox])
       [re-com/scroller
        :height "100%"
        :attr {:id "chat-scrollbox"}
+       :margin "10px 0"
        :child [re-com/v-box
-               :children (doall (map render-msg @msg-list))]])))
+               :children (doall (map (render-msg (:name @user)) @msg-list))]])))
 
 (defn msg-input []
   "Message input form"
   (let [msg-input (re-frame/subscribe [:chat/msg-input])]
     (fn []
       [:form {:on-submit #(do (re-frame/dispatch [:chat/send-msg])
-                              (.preventDefault %))
-              :style {:margin "10px"}}
+                              (.preventDefault %))}
        [re-com/input-text
         :placeholder "Type a message!"
         :width "100%"
@@ -34,7 +38,6 @@
 (defn end-button []
   "Closes the chat panel"
   [re-com/md-icon-button
-   :style {:margin "5px 0"}
    :md-icon-name "zmdi-close"
    :on-click #(re-frame/dispatch [:chat/enabled? false])])
 
@@ -74,4 +77,6 @@
 (defn panel []
   [re-com/v-box
    :width "100%"
+   :margin "10px"
+   :style {:flex "1 1 auto"}
    :children [[end-button] [container] [msg-input]]])

@@ -1,5 +1,5 @@
 (ns chatpool.handler
-  (:require [compojure.core :refer [GET POST defroutes context]]
+  (:require [compojure.core :refer [GET POST DELETE defroutes context]]
             [compojure.route :refer [resources]]
             [ring.util.response :refer [resource-response content-type]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
@@ -14,12 +14,14 @@
            (GET "/idle" [] (db/list-idle-reps)))
   (context "/rep/:rep-id{[0-9]+}" [rep-id]
            (GET "/name" [] (db/get-rep-name {:id rep-id}))
-           ;; TODO: POST name
+           (POST "/name" [first-name last-name]
+                 (db/update-rep-name! {:id rep-id
+                                       :first_name first-name
+                                       :last_name last-name}))
            (GET "/conv" [] (db/get-rep-convs {:id rep-id})))
   (context "/conv/:conv-id{[0-9]+}" [conv-id]
            (GET "/" [] (db/get-conv {:id conv-id}))
-           ;; TODO: DELETE conv
-           ))
+           (DELETE "/" [] (db/delete-conv! {:id conv-id}))))
 
 (defroutes routes
   (GET "/" [] (content-type

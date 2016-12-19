@@ -25,6 +25,10 @@
   [[_ {:as data :keys [from msg]}]]
   (dispatch [:chat/recv-msg from msg]))
 
+(defmethod push-msg-handler :idle-reps/update
+  [[_ {:as data :keys [list]}]]
+  (dispatch [:idle-rep-list list]))
+
 (defmulti -event-msg-handler
   "Multimethod to handle Sente `event-msg`s"
   :id)

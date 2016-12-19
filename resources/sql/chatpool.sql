@@ -1,19 +1,25 @@
 -- name: create-conv-table!
 create table convs (
   id         integer primary key asc,
-  cust_id    text,
+  cust_uid   text,
   rep_id     integer,
   active     boolean not null
 );
 
 -- name: create-conv<!
-insert into convs (cust_id, rep_id, active)
-values (:cust_id, :rep_id, 1);
+insert into convs (cust_uid, rep_id, active)
+values (:cust_uid, :rep_id, 1);
 
 -- name: get-conv
 select *
 from convs
 where id = :id;
+
+-- name: delete-conv!
+delete from convs
+where id = :id;
+delete from msgs
+where conv_id = :id;
 
 -- name: get-rep-convs
 select *
@@ -24,7 +30,27 @@ where rep_id = :id;
 select *
 from convs
 where rep_id = :id
-and status = 1;
+and active = 1;
+
+-- name: get-cust-conv
+select *
+from convs
+where cust_uid = :uid
+and active = 1;
+
+-- name: get-cust-rep
+select *
+from reps
+where id in
+(select rep_id
+ from convs
+ where cust_uid = :uid
+ and active = 1);
+
+-- name: end-conv!
+update convs
+set active = 0
+where id = :id;
 
 -- name: create-cust-table!
 create table custs (
@@ -35,8 +61,8 @@ create table custs (
 );
 
 -- name: create-cust<!
-insert into custs (first_name, last_name, email)
-values (?, ?, :email);
+insert into custs (uid, first_name, last_name, email)
+values (:uid, ?, ?, :email);
 
 -- name: create-msg-table!
 create table msgs (

@@ -9,12 +9,17 @@
   - /api/v1/rep/:id/name    GET, POST rep's name
   - /api/v1/rep/:id/conv    GET list of conversations involving rep :id
   - /api/v1/conv/:id        GET, DELETE conversation
-* DB
-  - rep table [name, id]
-  - conv table [user-id, rep-id, status]
-  - cust table [name, email, id, active-panel?]
+* (done) DB
+  - rep table [name, id, uid]
+  - conv table [user-uid, rep-id, active]
+  - cust table [name, email, uid, active-panel?]
   - message table [from, body, conv-id]
   - rating table [cust, rep, message, score]
+
+  - id = row id, uid = socket identifier. Customers do not have ids,
+    since they are only identified by the current session (e.g. if
+    they log out and log in, the server will generate a new uid for
+    them -- the old db entry is no longer used.)
 * UPDATE: split names into first/last
   - reflect this in UI or just hide it?
 * Make it look better
@@ -23,7 +28,9 @@
 * Heroku?
 * Confirmation message (modal) when quitting chat. Verify intent and
   desire for transcript.
-
+* Reps should not be able to close the chat panel.
+* Chat message server->client... messages... should contain whether
+  the sender is the rep or cust for CSS purposes.
 
 Complete:
 Primary 2 & 3

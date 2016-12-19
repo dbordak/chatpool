@@ -61,3 +61,8 @@
  :rep-id
  (fn [db]
    (:rep-id db)))
+
+(re-frame/reg-sub
+ :idle-rep-list
+ (fn [db]
+   (:idle-rep-list db)))

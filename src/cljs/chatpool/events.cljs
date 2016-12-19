@@ -115,4 +115,10 @@
    (re-frame/dispatch [:chat/enabled? false])
    (-> db
        (assoc :rep-id nil)
-       (assoc-in [:chat :msg-list] (vector)))))
+       (assoc-in [:chat :msg-list] (vector))
+       (assoc :user {:name "" :email ""}))))
+
+(re-frame/reg-event-db
+ :idle-rep-list
+ (fn [db [_ v]]
+   (assoc db :idle-rep-list v)))
