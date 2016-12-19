@@ -56,3 +56,8 @@
  :rep-list
  (fn [db]
    (:rep-list db)))
+
+(re-frame/reg-sub
+ :rep-id
+ (fn [db]
+   (:rep-id db)))

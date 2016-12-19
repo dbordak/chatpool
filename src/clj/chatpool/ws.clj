@@ -41,7 +41,6 @@
 
 (defmethod -event-msg-handler :chat/msg
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (debugf "Chat message request: %s" (str ring-req))
   (let [uids (:any @connected-uids)]
     (doseq [to-uid uids]
       (chsk-send! to-uid
@@ -58,9 +57,15 @@
   (when ?reply-fn
     (?reply-fn true)))
 
-(defmethod -event-msg-handler :chat/rep
+(defmethod -event-msg-handler :rep/login
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (debugf "rep logged in: %s" ?data)
+  (when ?reply-fn
+    (?reply-fn true)))
+
+(defmethod -event-msg-handler :rep/logout
+  [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (debugf "rep logged out: %s" ?data)
   (when ?reply-fn
     (?reply-fn true)))
 

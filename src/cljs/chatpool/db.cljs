@@ -11,4 +11,5 @@
           :ready? false
           :msg-input ""
           :msg-list (vector)}
-   :rep-list []})
+   :rep-list []
+   :rep-id nil})

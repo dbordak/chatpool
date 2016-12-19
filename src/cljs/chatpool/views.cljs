@@ -104,6 +104,7 @@
       (if @chat?
         [re-com/h-split
          :margin "0"
+         :style {:flex "1 1 auto"}
          :height "100%"
          :initial-split 70
          :panel-1 [re-com/scroller
@@ -111,11 +112,35 @@
                    :child [panels @active-panel]]
          :panel-2 [(if @chat-ready? chat/panel chat/name-form)]]
         [re-com/v-box
+         :style {:flex "1 1 auto"}
          :children [[panels @active-panel]
                     ;; TODO: chat availability
                     ]]))))
 
+(defn bottom-banner []
+  (let [user (re-frame/subscribe [:user])
+        rep-id (re-frame/subscribe [:rep-id])
+        bar-height "30px"]
+    (fn []
+      (if @rep-id
+        [re-com/h-box
+         :gap "1em"
+         :style {:justify-content "center"
+                 :background "#f7f7f9"
+                 :border-top "1px solid #e1e1e8"
+                 :padding "10px"}
+         :children [[re-com/label
+                     :label (str "Welcome, " (:name @user))
+                     :style {:font-size "14pt"
+                             :line-height bar-height
+                             :height bar-height}]
+                    [re-com/hyperlink
+                     :label "Logout"
+                     :style {:line-height bar-height}
+                     :on-click #(re-frame/dispatch [:rep-logout])]]]
+        [:div]))))
+
 (defn main-panel []
   [re-com/v-box
    :height "100vh"
-   :children [[nav-bar] [meta-panel]]])
+   :children [[nav-bar] [meta-panel] [bottom-banner]]])

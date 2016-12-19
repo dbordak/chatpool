@@ -88,10 +88,20 @@
 
 (re-frame/reg-event-db
  :rep-login
- (fn [db v]
-   (chsk-send! [:chat/rep v] 5000
+ (fn [db [_ v]]
+   (when (:rep-id db)
+     (chsk-send! [:rep/logout (:rep-id db)]))
+   (chsk-send! [:rep/login (:id v)] 5000
                (fn [cb-reply]
                  (when cb-reply
                    (re-frame/dispatch [:chat/ready? true])
                    (re-frame/dispatch [:chat/enabled? true]))))
-   db))
+   (-> db
+       (assoc :rep-id (:id v))
+       (assoc :user {:name (:first_name v) :email ""}))))
+
+(re-frame/reg-event-db
+ :rep-logout
+ (fn [db [_ v]]
+   (chsk-send! [:rep/logout (:rep-id db)])
+   (assoc db :rep-id nil)))
