@@ -105,11 +105,15 @@
               [page-tabs]]])
 
 (defn meta-panel []
+  "Center content. This decides whether to show the main panel, or a
+  split containing the main panel + chat panel."
   (let [active-panel (re-frame/subscribe [:active-panel])
         chat? (re-frame/subscribe [:chat/enabled?])
-        chat-ready? (re-frame/subscribe [:chat/ready?])]
+        chat-ready? (re-frame/subscribe [:chat/ready?])
+        rep-id (re-frame/subscribe [:rep-id])]
     (fn []
-      (if @chat?
+      ;; Reps should never be able to close the chat box.
+      (if (or @chat? @rep-id)
         [re-com/h-split
          :margin "0"
          :style {:flex "1 1 auto"}
@@ -118,7 +122,9 @@
          :panel-1 [re-com/scroller
                    :height "100%"
                    :child [panels @active-panel]]
-         :panel-2 [(if @chat-ready? chat/panel chat/name-form)]]
+         ;; Reps should never have the name form.
+         :panel-2 [(if (or @chat-ready? rep-id)
+                     chat/panel chat/name-form)]]
         [re-com/v-box
          :style {:flex "1 1 auto"}
          :children [[panels @active-panel]]]))))

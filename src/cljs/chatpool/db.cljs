@@ -7,8 +7,10 @@
                 :count ""}
    :user {:name ""
           :email ""}
-   :chat {:enabled? false
-          :ready? false
+   :chat {:enabled? false ; Whether the chat panel appears. Always
+                          ; enabled for reps.
+          :ready? false   ; Whether the chat has sufficient
+                          ; information to connect (i.e. name)
           :msg-input ""
           :msg-list (vector)}
    :rep-list []

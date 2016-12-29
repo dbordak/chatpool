@@ -94,29 +94,28 @@
    (assoc db :rep-list v)))
 
 (re-frame/reg-event-db
+ :rep-id
+ (fn [db [_ v]]
+   (assoc db :rep-id v)))
+
+(re-frame/reg-event-db
  :rep-login
  (fn [db [_ v]]
-   (when (:rep-id db)
-     (chsk-send! [:rep/logout (:rep-id db)]))
-   (chsk-send! [:rep/login (:id v)] 5000
-               (fn [cb-reply]
-                 (when cb-reply
-                   (re-frame/dispatch [:chat/ready? true])
-                   (re-frame/dispatch [:chat/enabled? true]))))
-   (-> db
-       (assoc :rep-id (:id v))
-       (assoc :user {:name (:first_name v) :email ""}))))
+   ;; Only allow login if we're not already logged in.
+   (when (not (:rep-id db))
+     (chsk-send! [:rep/login (:id v)] 5000
+                 (fn [cb-reply]
+                   (when cb-reply
+                     (re-frame/dispatch [:set-active-panel :home-panel])
+                     (re-frame/dispatch [:rep-id (:id v)])
+                     (re-frame/dispatch [:user {:name (:first_name v)}])))))
+   db))
 
 (re-frame/reg-event-db
  :rep-logout
  (fn [db [_ v]]
    (chsk-send! [:rep/logout (:rep-id db)])
-   (re-frame/dispatch [:chat/ready? false])
-   (re-frame/dispatch [:chat/enabled? false])
-   (-> db
-       (assoc :rep-id nil)
-       (assoc-in [:chat :msg-list] (vector))
-       (assoc :user {:name "" :email ""}))))
+   db/default-db))
 
 (re-frame/reg-event-db
  :idle-rep-list
