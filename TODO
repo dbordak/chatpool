@@ -1,4 +1,4 @@
-* Show chat invitation when pool>0
+* (done) Show chat invitation when pool>0
 * Email transcript
   - figure out how to use sendmail?
 * Rep rating
@@ -16,22 +16,20 @@
   - message table [from, body, conv-id]
   - rating table [cust, rep, message, score]
 
-  - id = row id, uid = socket identifier. Customers do not have ids,
-    since they are only identified by the current session (e.g. if
-    they log out and log in, the server will generate a new uid for
-    them -- the old db entry is no longer used.)
+  - id = row id, uid = socket identifier. Customers do not have ids
+    (technically they still do, it's just hidden), since they are only
+    identified by the current session (e.g. if they log out and log
+    in, the server will generate a new uid for them -- the old db
+    entry is no longer used.)
 * UPDATE: split names into first/last
   - reflect this in UI or just hide it?
 * Make it look better
 * Session persistence?
 * Docker
-* Heroku?
+* (done) Heroku?
 * Confirmation message (modal) when quitting chat. Verify intent and
   desire for transcript.
 * Reps should not be able to close the chat panel.
-* Chat message server->client... messages... should contain whether
-  the sender is the rep or cust for CSS purposes.
-
-Complete:
-Primary 2 & 3
-Secondary 4
+* (done) Chat message server->client... messages... should contain
+  whether the sender is the rep or cust for CSS purposes.
+* Test customer ending chat and starting another.
