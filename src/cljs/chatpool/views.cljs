@@ -91,6 +91,7 @@
                :label "Login"}]])))
 
 (defn nav-bar []
+  "Top bar. This shows the 'logo' and navigation links."
   [re-com/h-box
    :style {:justify-content "space-between"
            :background "#f7f7f9"
@@ -129,38 +130,48 @@
          :style {:flex "1 1 auto"}
          :children [[panels @active-panel]]]))))
 
-;; This really needs to be cleaned up
+(defn rep-greeting []
+  "Shows a greeting for a logged-in rep with a logout button."
+  (let [user (re-frame/subscribe [:user])]
+    (fn []
+      [re-com/h-box
+       :gap "1em"
+       :style {:padding "5px"}
+       :children
+       [[re-com/label
+         :label (str "Welcome, " (:name @user))
+         :style {:font-size "14pt"}]
+        [re-com/hyperlink
+         :label "Logout"
+         :on-click #(re-frame/dispatch [:rep-logout])]]])))
+
+(defn join-chat-link []
+  [re-com/hyperlink
+   :label "Representatives available to chat. Click Here!"
+   :style {:font-size "14pt"
+           :padding "5px"}
+   :on-click #(re-frame/dispatch [:chat/enabled? true])])
+
 (defn bottom-banner []
-  (let [user (re-frame/subscribe [:user])
-        rep-id (re-frame/subscribe [:rep-id])
+  (let [rep-id (re-frame/subscribe [:rep-id])
         chat? (re-frame/subscribe [:chat/enabled?])
-        idle-rep-list (re-frame/subscribe [:idle-rep-list])
-        bar-height "30px"]
+        idle-rep-list (re-frame/subscribe [:idle-rep-list])]
     (fn []
       [re-com/h-box
        :gap "1em"
        :style {:justify-content "center"
                :background "#f7f7f9"
                :border-top "1px solid #e1e1e8"
-               :display (if (and (not @rep-id) @chat?) "none")
-               :padding "10px"}
-       :children
-       (if @rep-id
-         [[re-com/label
-           :label (str "Welcome, " (:name @user))
-           :style {:font-size "14pt"
-                   :line-height bar-height}]
-          [re-com/hyperlink
-           :label "Logout"
-           :style {:line-height bar-height}
-           :on-click #(re-frame/dispatch [:rep-logout])]]
-         (if (and (not @chat?) (> (count @idle-rep-list) 0))
-           [[re-com/hyperlink
-             :label "Representatives available to chat. Click Here!"
-             :style {:font-size "14pt"
-                     :line-height bar-height}
-             :on-click #(re-frame/dispatch [:chat/enabled? true])]]
-           [[:div]]))])))
+               :line-height "30px"}
+       :children [(cond
+                    ;; If rep, show the greeting
+                    @rep-id [rep-greeting]
+                    ;; If not, and we're in chat, do nothing
+                    @chat? [:div]
+                    ;; If not, and there are idle reps, show the chat link
+                    (> (count @idle-rep-list) 0) [join-chat-link]
+                    ;; If not, do nothing.
+                    :else [:div])]])))
 
 (defn main-panel []
   [re-com/v-box

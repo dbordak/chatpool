@@ -36,7 +36,8 @@
         :on-change #(re-frame/dispatch-sync [:chat/msg-input %])]])))
 
 (defn end-button []
-  "Closes the chat panel"
+  "Ends the chat. If a customer, closes the chat panel. If a rep, just
+  ends chat."
   [re-com/md-icon-button
    :md-icon-name "zmdi-close"
    :on-click #(re-frame/dispatch [:chat/enabled? false])])
