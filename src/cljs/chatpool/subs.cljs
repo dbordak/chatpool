@@ -66,3 +66,8 @@
  :idle-rep-list
  (fn [db]
    (:idle-rep-list db)))
+
+(re-frame/reg-sub
+ :cust-page
+ (fn [db]
+   (:cust-page db)))

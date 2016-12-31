@@ -6,6 +6,9 @@ create table reps (
   last_name  varchar(40)
 );
 
+-- name: drop-rep-table!
+drop table reps;
+
 -- name: create-rep<!
 insert into reps (first_name, last_name)
 values (?, ?);

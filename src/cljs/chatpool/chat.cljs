@@ -20,7 +20,9 @@
        :attr {:id "chat-scrollbox"}
        :margin "10px 0"
        :child [re-com/v-box
-               :children (doall (map (render-msg (:name @user)) @msg-list))]])))
+               :children
+               (for [msg @msg-list]
+                 [(render-msg (:name @user)) msg])]])))
 
 (defn msg-input []
   "Message input form"
@@ -69,15 +71,22 @@
        [re-com/h-box
         :style {:justify-content "space-between"}
         :children [[re-com/button
-                    :label "Start Chat"]
-                   [re-com/button
                     :label "Cancel"
                     :on-click #(do (re-frame/dispatch [:chat/enabled? false])
-                                   (.preventDefault %))]]]])))
+                                   (.preventDefault %))]
+                   [re-com/button
+                    :label "Start Chat"]]]])))
 
 (defn panel []
-  [re-com/v-box
-   :width "100%"
-   :margin "10px"
-   :style {:flex "1 1 auto"}
-   :children [[end-button] [container] [msg-input]]])
+  (let [rep-id (re-frame/subscribe [:rep-id])
+        cust-page (re-frame/subscribe [:cust-page])]
+    (fn []
+      [re-com/v-box
+       :width "100%"
+       :margin "10px"
+       :style {:flex "1 1 auto"}
+       :children
+       (if (and @rep-id (not @cust-page))
+         [[re-com/label
+           :label "No customer connected"]]
+         [[end-button] [container] [msg-input]])])))

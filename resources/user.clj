@@ -12,3 +12,9 @@
   (create-conv-table!)
   (create-cust-table!)
   (create-msg-table!))
+
+(defn drop-all []
+  (drop-rep-table!)
+  (drop-conv-table!)
+  (drop-cust-table!)
+  (drop-msg-table!))

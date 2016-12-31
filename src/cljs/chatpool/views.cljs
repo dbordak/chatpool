@@ -39,17 +39,17 @@
 
 (defn login-panel []
   (let [rep-list (re-frame/subscribe [:rep-list])
-        rep-id (re-frame/subscribe [:rep-id])]
+        user (re-frame/subscribe [:user])]
     (fn []
       [re-com/v-box
        :gap "1em"
        :margin "1em"
-       :children (if @rep-id
+       :children (if (not= (:name @user) "")
                    [[re-com/title
                      :label "You are already logged in"
                      :level :level1]]
                    (cons [login-title]
-                       (doall (map rep-login-button @rep-list))))])))
+                         (doall (map rep-login-button @rep-list))))])))
 
 ;; main
 
@@ -59,8 +59,7 @@
     :about-panel [about-panel]
     :debug-panel [home-panel]
     :login-panel (do (encore/ajax-lite
-                      "/api/v1/rep/list"
-                      {:method :get :resp-type :edn}
+                      "/api/v1/rep/list" {:method :get}
                       (fn [resp]
                         (when (:?content resp)
                           (re-frame/dispatch [:rep-list (:?content resp)]))))
@@ -105,31 +104,6 @@
                        :height "40px"}]
               [page-tabs]]])
 
-(defn meta-panel []
-  "Center content. This decides whether to show the main panel, or a
-  split containing the main panel + chat panel."
-  (let [active-panel (re-frame/subscribe [:active-panel])
-        chat? (re-frame/subscribe [:chat/enabled?])
-        chat-ready? (re-frame/subscribe [:chat/ready?])
-        rep-id (re-frame/subscribe [:rep-id])]
-    (fn []
-      ;; Reps should never be able to close the chat box.
-      (if (or @chat? @rep-id)
-        [re-com/h-split
-         :margin "0"
-         :style {:flex "1 1 auto"}
-         :height "100%"
-         :initial-split 70
-         :panel-1 [re-com/scroller
-                   :height "100%"
-                   :child [panels @active-panel]]
-         ;; Reps should never have the name form.
-         :panel-2 [(if (or @chat-ready? rep-id)
-                     chat/panel chat/name-form)]]
-        [re-com/v-box
-         :style {:flex "1 1 auto"}
-         :children [[panels @active-panel]]]))))
-
 (defn rep-greeting []
   "Shows a greeting for a logged-in rep with a logout button."
   (let [user (re-frame/subscribe [:user])]
@@ -173,7 +147,34 @@
                     ;; If not, do nothing.
                     :else [:div])]])))
 
+(defn meta-panel []
+  (let [active-panel (re-frame/subscribe [:active-panel])
+        chat-ready? (re-frame/subscribe [:chat/ready?])
+        rep-id (re-frame/subscribe [:rep-id])]
+    (fn []
+      [re-com/h-split
+       :margin "0"
+       :style {:flex "1 1 auto"}
+       :height "100%"
+       :initial-split 70
+       :panel-1 [re-com/scroller
+                 :height "100%"
+                 :child [panels @active-panel]]
+       ;; Reps should never have the name form.
+       :panel-2 [(if (or @chat-ready? @rep-id)
+                   chat/panel chat/name-form)]])))
+
 (defn main-panel []
-  [re-com/v-box
-   :height "100vh"
-   :children [[nav-bar] [meta-panel] [bottom-banner]]])
+  (let [active-panel (re-frame/subscribe [:active-panel])
+        chat? (re-frame/subscribe [:chat/enabled?])
+        rep-id (re-frame/subscribe [:rep-id])]
+    (fn []
+      [re-com/v-box
+       :height "100vh"
+       :children [[nav-bar]
+                  (if (or @chat? @rep-id)
+                    [meta-panel]
+                    [re-com/v-box
+                     :style {:flex "1 1 auto"}
+                     :children [[panels @active-panel]]])
+                  [bottom-banner]]])))

@@ -2,7 +2,7 @@
     (:require [re-frame.core :as re-frame]
               [taoensso.timbre :as timbre]
               [chatpool.db :as db]
-              [chatpool.ws :refer [chsk-send!]]))
+              [chatpool.ws :as ws :refer [chsk-send!]]))
 
 (re-frame/reg-event-db
  :initialize-db
@@ -74,16 +74,18 @@
 (re-frame/reg-event-db
  :chat/send-msg
  (fn [db _]
-   (chsk-send! [:chat/msg (-> db :chat :msg-input)])
+   (let [msg (-> db :chat :msg-input)]
+     (when (not= msg "") ; Only send nonempty messages.
+       (chsk-send! [:chat/msg msg])))
    (assoc-in db [:chat :msg-input] "")))
 
 (re-frame/reg-event-db
  :chat/send-user-info
  (fn [db _]
-   (chsk-send! [:chat/user (:user db)] 5000
-               (fn [cb-reply]
-                 (when cb-reply
-                   (re-frame/dispatch [:chat/ready? true]))))
+   (ws/user-login! (:user db) (:active-panel db)
+                   (fn [cb-reply]
+                     (when cb-reply
+                       (re-frame/dispatch [:chat/ready? true]))))
    ;; not going to clear the forms since we might want these values,
    ;; and these <input>s disappear as soon as they're set
    db))
@@ -121,3 +123,8 @@
  :idle-rep-list
  (fn [db [_ v]]
    (assoc db :idle-rep-list v)))
+
+(re-frame/reg-event-db
+ :cust-page
+ (fn [db [_ v]]
+   (assoc db :cust-page v)))

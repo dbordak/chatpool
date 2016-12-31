@@ -29,6 +29,10 @@
   [[_ {:as data :keys [list]}]]
   (dispatch [:idle-rep-list list]))
 
+(defmethod push-msg-handler :chat/cust-page
+  [[_ {:as data :keys [page]}]]
+  (dispatch [:cust-page page]))
+
 (defmulti -event-msg-handler
   "Multimethod to handle Sente `event-msg`s"
   :id)
@@ -66,3 +70,9 @@
   (reset! router_
           (sente/start-client-chsk-router!
            ch-chsk event-msg-handler)))
+
+;; Sending
+
+(defn user-login! [user page cb-fn]
+  (chsk-send! [:chat/user {:user user :page page}] 5000
+              cb-fn))

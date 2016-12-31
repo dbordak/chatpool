@@ -6,6 +6,9 @@ create table convs (
   active     boolean not null
 );
 
+-- name: drop-conv-table!
+drop table convs;
+
 -- name: create-conv<!
 insert into convs (cust_uid, rep_id, active)
 values (:cust_uid, :rep_id, TRUE);
@@ -59,12 +62,16 @@ create table custs (
   uid        text,
   first_name varchar(40),
   last_name  varchar(40),
-  email      varchar(255)
+  email      varchar(255),
+  page       varchar(40)
 );
 
+-- name: drop-cust-table!
+drop table custs;
+
 -- name: create-cust<!
-insert into custs (uid, first_name, last_name, email)
-values (:uid, ?, ?, :email);
+insert into custs (uid, first_name, last_name, email, page)
+values (:uid, ?, ?, :email, :page);
 
 -- name: create-msg-table!
 create table msgs (
@@ -72,6 +79,9 @@ create table msgs (
   body       varchar(500),
   conv_id    integer
 );
+
+-- name: drop-msg-table!
+drop table msgs;
 
 -- name: create-msg<!
 insert into msgs (sender, body, conv_id)

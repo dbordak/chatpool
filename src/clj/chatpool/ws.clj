@@ -67,13 +67,21 @@
 
 (defmethod -event-msg-handler :chat/user
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (let [name (:name ?data)
-        email (:email ?data)]
-    (debugf "new user: %s" (:name ?data))
-    (db/create-cust<! {:? [name ""] :email email :uid uid})
+  (let [user (:user ?data)
+        page (:page ?data)]
+    (debugf "new user: %s" user)
+    (db/create-cust<! {:? [(:name user) ""]
+                       :email (:email user)
+                       :uid uid
+                       :page (name page)})
     (let [rep (rand-nth (db/list-idle-reps))]
       (debugf "pairing with %s" (:first_name rep))
-      (db/create-conv<! {:cust_uid uid :rep_id (:id rep)})))
+      (db/create-conv<! {:cust_uid uid :rep_id (:id rep)})
+      (chsk-send! (:uid rep)
+                  [:chat/cust-page
+                   {:what-is-this "The connected customer's current page."
+                    :to-whom (:uid rep)
+                    :page page}])))
   (when ?reply-fn
     (?reply-fn true)))
 
