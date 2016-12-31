@@ -7,7 +7,13 @@
   (fn [msg]
     [:span {:style {:text-align (if (= (:name msg) name)
                                   "right" "left")}}
-     [:span (:name msg)] (str ": " (:body msg))]))
+     [:span {:style {:color "#999"
+                     :font-style "italic"
+                     :margin-right "0.25em"}}
+      (:time msg)]
+     [:span (:name msg)]
+     [:span {:style {:margin-right "0.25em"}} ":"]
+     (:body msg)]))
 
 (defn container []
   "Container for making the chat separately scrollable"

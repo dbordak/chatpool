@@ -56,10 +56,10 @@
 
 (re-frame/reg-event-db
  :chat/recv-msg
- (fn [db [_ from msg]]
+ (fn [db [_ from msg time]]
    (assoc-in db [:chat :msg-list]
           (conj (-> db :chat :msg-list)
-                {:name from :body msg}))))
+                {:name from :body msg :time time}))))
 
 (re-frame/reg-event-db
  :chat/enabled?

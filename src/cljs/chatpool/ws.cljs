@@ -5,6 +5,8 @@
    [cljs.core.async :as async :refer (put! chan)]
    [taoensso.sente  :as sente :refer (cb-success?)]
    [taoensso.timbre :as timbre]
+   [cljs-time.core :refer [to-default-time-zone]]
+   [cljs-time.format :refer [parse unparse formatter]]
    [re-frame.core :refer [dispatch]]))
 
 (let [{:keys [chsk ch-recv send-fn state]}
@@ -22,8 +24,10 @@
   (timbre/debug "Unhandled event: " _ data))
 
 (defmethod push-msg-handler :chat/msg
-  [[_ {:as data :keys [from msg]}]]
-  (dispatch [:chat/recv-msg from msg]))
+  [[_ {:as data :keys [from msg time]}]]
+  (dispatch [:chat/recv-msg from msg
+             (unparse (formatter "HH:mm")
+                      (to-default-time-zone (parse time)))]))
 
 (defmethod push-msg-handler :idle-reps/update
   [[_ {:as data :keys [list]}]]

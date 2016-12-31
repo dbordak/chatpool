@@ -77,7 +77,8 @@ values (:uid, ?, ?, :email, :page);
 create table msgs (
   sender     varchar(4),
   body       varchar(500),
-  conv_id    integer
+  conv_id    integer,
+  time       timestamp not null default (now() at time zone 'UTC')
 );
 
 -- name: drop-msg-table!

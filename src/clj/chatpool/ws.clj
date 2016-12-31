@@ -52,16 +52,21 @@
         partner (if rep
                   (:cust_uid conv)
                   (:uid (first (db/get-rep {:id (:rep_id conv)}))))
+        db-entry (db/create-msg<!
+                  {:sender (if rep "rep" "cust")
+                   :body ?data
+                   :id (:id conv)})
         msg [:chat/msg
              {:what-is-this "A chat message"
               :how-often "Whenever one is received"
               :from (if from
                       (:first_name from)
                       "?")
-              :msg ?data}]]
-    (db/create-msg<! {:sender (if rep "rep" "cust")
-                      :body ?data
-                      :id (:id conv)})
+              :msg ?data
+              ;; Lazy way of changing between those two very similar
+              ;; timestamp formats. It feels like every time I work
+              ;; with time I have to do this.
+              :time (clojure.string/replace (str (:time db-entry)) " " "T")}]]
     (chsk-send! partner msg)
     (chsk-send! uid msg)))
 
