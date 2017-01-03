@@ -3,17 +3,33 @@
             [re-com.core :as re-com]
             [reagent.core :as reagent]))
 
-(defn render-msg [name]
+(defn render-msg [username]
   (fn [msg]
-    [:span {:style {:text-align (if (= (:name msg) name)
-                                  "right" "left")}}
-     [:span {:style {:color "#999"
-                     :font-style "italic"
-                     :margin-right "0.25em"}}
-      (:time msg)]
-     [:span (:name msg)]
-     [:span {:style {:margin-right "0.25em"}} ":"]
-     (:body msg)]))
+    (let [[key map] msg]
+      (case key
+        :cust-page
+        [:span {:style {:color "#999"
+                        :font-style "italic"
+                        :text-align "center"}}
+         (str "Customer is now on " (name (:page map)))]
+
+        :chat-msg
+        [:span {:style {:text-align (if (= (:name map) username)
+                                      "right" "left")}}
+
+         ;; Timestamp
+         [:span {:style {:color "#999"
+                         :font-style "italic"
+                         :margin-right "0.25em"}}
+          (:time map)]
+
+         ;; Username
+         [:span {:style {:font-weight "700"}}
+          (:name map)]
+         [:span {:style {:margin-right "0.25em"}} ":"]
+
+         ;; Message
+         (:body map)]))))
 
 (defn container []
   "Container for making the chat separately scrollable"

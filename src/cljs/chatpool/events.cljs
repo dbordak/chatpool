@@ -59,7 +59,7 @@
  (fn [db [_ from msg time]]
    (assoc-in db [:chat :msg-list]
           (conj (-> db :chat :msg-list)
-                {:name from :body msg :time time}))))
+                [:chat-msg {:name from :body msg :time time}]))))
 
 (re-frame/reg-event-db
  :chat/enabled?
@@ -127,4 +127,7 @@
 (re-frame/reg-event-db
  :cust-page
  (fn [db [_ v]]
-   (assoc db :cust-page v)))
+   (-> db
+       (assoc :cust-page v)
+       (assoc-in [:chat :msg-list] (conj (-> db :chat :msg-list)
+                                         [:cust-page {:page v}])))))
