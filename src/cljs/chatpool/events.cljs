@@ -12,13 +12,11 @@
 (re-frame/reg-event-db
  :set-active-panel
  (fn [db [_ active-panel]]
+   ;; Inform the server of page changes when chat is running & we're
+   ;; not a rep.
+   (when (and (not (:rep-id db)) (-> db :chat :ready?))
+     (chsk-send! [:chat/cust-page active-panel]))
    (assoc db :active-panel active-panel)))
-
-(re-frame/reg-event-db
- :test/send
- (fn [db [_ msg]]
-   (chsk-send! [:test/send msg])
-   db))
 
 (re-frame/reg-event-db
  :user

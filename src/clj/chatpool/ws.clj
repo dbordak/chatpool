@@ -43,8 +43,7 @@
 (defmethod -event-msg-handler :chat/msg
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (debugf "Chat message from %s" uid)
-  (let [uids (:any @connected-uids)
-        from (first (db/get-user-name {:uid uid}))
+  (let [from (first (db/get-user-name {:uid uid}))
         rep (first (db/get-rep-by-uid {:uid uid}))
         conv (if rep
                (first (db/get-rep-conv {:id (:id rep)}))
@@ -69,6 +68,18 @@
               :time (clojure.string/replace (str (:time db-entry)) " " "T")}]]
     (chsk-send! partner msg)
     (chsk-send! uid msg)))
+
+(defmethod -event-msg-handler :chat/cust-page
+  [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (debugf "customer switched page: %s %s" uid ?data)
+  (let [conv (first (db/get-cust-conv {:uid uid}))
+        rep (first (db/get-rep {:id (:rep_id conv)}))]
+    (db/set-cust-page! {:uid uid :page (name ?data)})
+    (chsk-send! (:uid rep)
+                [:chat/cust-page
+                 {:what-is-this "The connected customer's current page."
+                  :to-whom (:uid rep)
+                  :page ?data}])))
 
 (defmethod -event-msg-handler :chat/user
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]

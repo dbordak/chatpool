@@ -73,6 +73,11 @@ drop table custs;
 insert into custs (uid, first_name, last_name, email, page)
 values (:uid, ?, ?, :email, :page);
 
+-- name: set-cust-page!
+update custs
+set page = :page
+where uid = :uid;
+
 -- name: create-msg-table!
 create table msgs (
   sender     varchar(4),
