@@ -21,20 +21,17 @@
            (GET "/" [] (db/list-reps))
            (GET "/idle" [] (db/list-idle-reps)))
   (context "/rep/:rep-id" [rep-id :<< as-int]
-           (GET "/name" [] (db/get-rep-name {:id rep-id}))
+           (GET "/name" [] (list (db/get-rep-name rep-id)))
            (POST "/name" [first-name last-name]
-                 (db/update-rep-name! {:id rep-id
-                                       :first_name first-name
-                                       :last_name last-name})
+                 (db/update-rep-name! rep-id [first-name last-name])
                  "")
-           (GET "/conv" [] (db/get-rep-convs {:id rep-id})))
+           (GET "/conv" [] (db/get-rep-convs rep-id)))
   (context "/conv/:conv-id" [conv-id :<< as-int]
-           (GET "/" [] (db/get-conv {:id conv-id}))
+           (GET "/" [] (db/get-conv conv-id))
            (DELETE "/" []
-                   (db/delete-conv! {:id conv-id})
-                   (db/delete-msgs! {:id conv-id})
-                   "")
-           (GET "/msgs" [] (db/get-conv-msgs {:id conv-id}))))
+                   (let [msg-count (db/delete-conv! conv-id)]
+                     (str "Deleted " msg-count " messages.")))
+           (GET "/msgs" [] (db/get-conv-msgs conv-id))))
 
 (defroutes handler
   (wrap-defaults

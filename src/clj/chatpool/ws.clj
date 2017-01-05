@@ -43,18 +43,18 @@
 (defmethod -event-msg-handler :chat/msg
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (debugf "Chat message from %s" uid)
-  (let [from (first (db/get-user-name {:uid uid}))
-        rep (first (db/get-rep-by-uid {:uid uid}))
+  (let [from (db/get-user-name uid)
+        rep (db/get-rep uid)
         conv (if rep
-               (first (db/get-rep-conv {:id (:id rep)}))
-               (first (db/get-cust-conv {:uid uid})))
+               (db/get-rep-conv (:id rep))
+               (db/get-cust-conv {:uid uid}))
         partner (if rep
                   (:cust_uid conv)
-                  (:uid (first (db/get-rep {:id (:rep_id conv)}))))
+                  (:uid (db/get-rep (:rep_id conv))))
         db-entry (db/create-msg<!
-                  {:sender (if rep "rep" "cust")
-                   :body ?data
-                   :id (:id conv)})
+                  :id     (:id conv)
+                  :sender (if rep "rep" "cust")
+                  :body   ?data)
         msg [:chat/msg
              {:what-is-this "A chat message"
               :how-often "Whenever one is received"
@@ -72,9 +72,9 @@
 (defmethod -event-msg-handler :chat/cust-page
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (debugf "customer switched page: %s %s" uid ?data)
-  (let [conv (first (db/get-cust-conv {:uid uid}))
-        rep (first (db/get-rep {:id (:rep_id conv)}))]
-    (db/set-cust-page! {:uid uid :page (name ?data)})
+  (let [conv (db/get-cust-conv uid)
+        rep (db/get-rep (:rep_id conv))]
+    (db/set-cust-page! uid (name ?data))
     (chsk-send! (:uid rep)
                 [:chat/cust-page
                  {:what-is-this "The connected customer's current page."
@@ -86,13 +86,13 @@
   (let [user (:user ?data)
         page (:page ?data)]
     (debugf "new user: %s" user)
-    (db/create-cust<! {:? [(:name user) ""]
-                       :email (:email user)
-                       :uid uid
-                       :page (name page)})
+    (db/create-cust<! :name  [(:name user) ""]
+                      :email (:email user)
+                      :uid   uid
+                      :page  (name page))
     (let [rep (rand-nth (db/list-idle-reps))]
       (debugf "pairing with %s" (:first_name rep))
-      (db/create-conv<! {:cust_uid uid :rep_id (:id rep)})
+      (db/create-conv<! uid (:id rep))
       (chsk-send! (:uid rep)
                   [:chat/cust-page
                    {:what-is-this "The connected customer's current page."
@@ -113,7 +113,7 @@
 
 (defmethod -event-msg-handler :rep/login
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (db/rep-online! {:id ?data :uid uid})
+  (db/rep-online! :id ?data :uid uid)
   (debugf "rep logged in: %s" ?data)
   (broadcast-idle-list!)
   (when ?reply-fn
@@ -121,7 +121,7 @@
 
 (defmethod -event-msg-handler :rep/logout
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (db/rep-offline! {:id ?data})
+  (db/rep-offline! :id ?data)
   (debugf "rep logged out: %s" ?data)
   (broadcast-idle-list!)
   (when ?reply-fn
