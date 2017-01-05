@@ -126,6 +126,16 @@
   (when ?reply-fn
     (?reply-fn true)))
 
+;; This is called automatically when the tab is closed/refreshed.
+(defmethod -event-msg-handler :chsk/uidport-close
+  [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  ;; Note: automatically called with uid as sole parameter, so ?data == uid
+  (debugf "client closed tab: %s" uid)
+  (let [rep (db/get-rep uid)]
+    (if rep
+      (do (db/rep-offline! (:id rep))
+          (broadcast-idle-list!)))))
+
 (defonce router_ (atom nil))
 (defn stop-router! [] (when-let [stop-fn @router_] (stop-fn)))
 (defn start-router! []
