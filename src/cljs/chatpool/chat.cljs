@@ -92,12 +92,12 @@
         :on-change #(re-frame/dispatch-sync [:user/email %])]
        [re-com/h-box
         :style {:justify-content "space-between"}
-        :children [[re-com/button
+        :children [[re-com/hyperlink
+                    :class "rc-button btn btn-default"
                     :label "Cancel"
                     :on-click #(do (re-frame/dispatch [:chat/enabled? false])
                                    (.preventDefault %))]
-                   [re-com/button
-                    :label "Start Chat"]]]])))
+                   [re-com/button :label "Start Chat"]]]])))
 
 (defn panel []
   (let [rep-id (re-frame/subscribe [:rep-id])
