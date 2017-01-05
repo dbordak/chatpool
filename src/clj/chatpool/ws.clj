@@ -47,14 +47,13 @@
         rep (db/get-rep uid)
         conv (if rep
                (db/get-rep-conv (:id rep))
-               (db/get-cust-conv {:uid uid}))
+               (db/get-cust-conv uid))
         partner (if rep
                   (:cust_uid conv)
                   (:uid (db/get-rep (:rep_id conv))))
-        db-entry (db/create-msg<!
-                  :id     (:id conv)
-                  :sender (if rep "rep" "cust")
-                  :body   ?data)
+        db-entry (db/create-msg<! (:id conv)
+                                  (if rep "rep" "cust")
+                                  ?data)
         msg [:chat/msg
              {:what-is-this "A chat message"
               :how-often "Whenever one is received"
@@ -86,10 +85,10 @@
   (let [user (:user ?data)
         page (:page ?data)]
     (debugf "new user: %s" user)
-    (db/create-cust<! :name  [(:name user) ""]
-                      :email (:email user)
-                      :uid   uid
-                      :page  (name page))
+    (db/create-cust<! uid
+                      [(:name user) ""]
+                      (:email user)
+                      (name page))
     (let [rep (rand-nth (db/list-idle-reps))]
       (debugf "pairing with %s" (:first_name rep))
       (db/create-conv<! uid (:id rep))
@@ -113,7 +112,7 @@
 
 (defmethod -event-msg-handler :rep/login
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (db/rep-online! :id ?data :uid uid)
+  (db/rep-online! ?data uid)
   (debugf "rep logged in: %s" ?data)
   (broadcast-idle-list!)
   (when ?reply-fn
@@ -121,7 +120,7 @@
 
 (defmethod -event-msg-handler :rep/logout
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (db/rep-offline! :id ?data)
+  (db/rep-offline! ?data)
   (debugf "rep logged out: %s" ?data)
   (broadcast-idle-list!)
   (when ?reply-fn

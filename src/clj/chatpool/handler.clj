@@ -17,6 +17,8 @@
   (POST "/chsk" req (ring-ajax-post req)))
 
 (defroutes api
+  (POST "/rep" [first-name last-name]
+        (db/create-rep<! [first-name last-name]))
   (context "/rep/list" []
            (GET "/" [] (db/list-reps))
            (GET "/idle" [] (db/list-idle-reps)))
@@ -25,9 +27,10 @@
            (POST "/name" [first-name last-name]
                  (db/update-rep-name! rep-id [first-name last-name])
                  "")
-           (GET "/conv" [] (db/get-rep-convs rep-id)))
+           (GET "/conv" [] (db/get-rep-convs rep-id))
+           (POST "/logout" [] (db/rep-offline! rep-id)))
   (context "/conv/:conv-id" [conv-id :<< as-int]
-           (GET "/" [] (db/get-conv conv-id))
+           (GET "/" [] (list (db/get-conv conv-id)))
            (DELETE "/" []
                    (let [msg-count (db/delete-conv! conv-id)]
                      (str "Deleted " msg-count " messages.")))
