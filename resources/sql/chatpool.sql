@@ -1,11 +1,3 @@
--- name: create-rep-table!
-create table reps (
-  id         serial primary key,
-  uid        text,
-  first_name varchar(40),
-  last_name  varchar(40)
-);
-
 -- name: drop-rep-table!
 drop table reps;
 
@@ -54,14 +46,6 @@ set uid = null
 where id = :id;
 
 
-
--- name: create-conv-table!
-create table convs (
-  id         serial primary key,
-  cust_uid   text,
-  rep_id     integer,
-  active     boolean not null
-);
 
 -- name: drop-conv-table!
 drop table convs;
@@ -116,17 +100,11 @@ where id = :id;
 
 
 
--- name: create-cust-table!
-create table custs (
-  uid        text,
-  first_name varchar(40),
-  last_name  varchar(40),
-  email      varchar(255),
-  page       varchar(40)
-);
-
 -- name: drop-cust-table!
 drop table custs;
+
+-- name: drop-msg-table!
+drop table msgs;
 
 -- name: -create-cust<!
 insert into custs (uid, first_name, last_name, email, page)
@@ -136,19 +114,6 @@ values (:uid, ?, ?, :email, :page);
 update custs
 set page = :page
 where uid = :uid;
-
-
-
--- name: create-msg-table!
-create table msgs (
-  sender     varchar(4),
-  body       varchar(500),
-  conv_id    integer,
-  time       timestamp not null default (now() at time zone 'UTC')
-);
-
--- name: drop-msg-table!
-drop table msgs;
 
 -- name: -create-msg<!
 insert into msgs (sender, body, conv_id)

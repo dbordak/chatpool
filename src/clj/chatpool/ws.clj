@@ -120,8 +120,9 @@
 
 (defmethod -event-msg-handler :rep/logout
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
-  (db/rep-offline! ?data)
-  (debugf "rep logged out: %s" ?data)
+  (let [rep (db/get-rep uid)]
+    (db/rep-offline! (:id rep))
+    (debugf "rep logged out: %s" (:id rep)))
   (broadcast-idle-list!)
   (when ?reply-fn
     (?reply-fn true)))

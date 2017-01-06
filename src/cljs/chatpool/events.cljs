@@ -114,7 +114,7 @@
 (re-frame/reg-event-db
  :rep-logout
  (fn [db [_ v]]
-   (chsk-send! [:rep/logout (:rep-id db)])
+   (chsk-send! [:rep/logout])
    db/default-db))
 
 (re-frame/reg-event-db

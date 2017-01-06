@@ -3,10 +3,12 @@
 
 ;; This file pretty much just exists to namespace the SQL functions.
 
-(def db (or (System/getenv "DATABASE_URL")
-            {:classname "org.postgresql.Driver"
-             :subprotocol "postgresql"
-             :subname "//localhost:5432/chatpool"}))
+(def db {:classname "org.h2.Driver"
+         :subprotocol "h2:file"
+         :subname "./chatpool"
+         :user "sa"
+         :password ""
+         :create true})
 
 (defqueries "sql/chatpool.sql" {:connection db})
 

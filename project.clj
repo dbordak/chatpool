@@ -14,11 +14,13 @@
                  [ring-middleware-format "0.7.0"]
                  [http-kit "2.2.0"]
                  [yesql "0.5.3"]
-                 [org.postgresql/postgresql "9.4.1212"]
+                 [com.h2database/h2 "1.4.193"]
                  [com.andrewmcveigh/cljs-time "0.5.0-alpha2"]
                  [com.taoensso/sente "1.11.0"]
                  [com.taoensso/encore "2.88.1"]
                  [com.taoensso/timbre "4.7.4"]]
+
+  :jvm-opts ["-Duser.timezone='UTC'"]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
 
