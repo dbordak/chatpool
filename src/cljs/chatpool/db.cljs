@@ -13,6 +13,7 @@
                           ; information to connect (i.e. name)
           :msg-input ""
           :msg-list (vector)}
+   :modal {:end-chat? false}
    :cust-page nil
    :rep-list []
    :idle-rep-list []

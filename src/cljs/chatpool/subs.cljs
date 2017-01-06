@@ -71,3 +71,8 @@
  :cust-page
  (fn [db]
    (:cust-page db)))
+
+(re-frame/reg-sub
+ :modal/end-chat?
+ (fn [db]
+   (-> db :modal :end-chat?)))

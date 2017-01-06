@@ -89,6 +89,12 @@
    db))
 
 (re-frame/reg-event-db
+ :chat/end
+ (fn [db _]
+   (chsk-send! [:chat/end])
+   db/default-db))
+
+(re-frame/reg-event-db
  :rep-list
  (fn [db [_ v]]
    (assoc db :rep-list v)))
@@ -129,3 +135,8 @@
        (assoc :cust-page v)
        (assoc-in [:chat :msg-list] (conj (-> db :chat :msg-list)
                                          [:cust-page {:page v}])))))
+
+(re-frame/reg-event-db
+ :modal/end-chat?
+ (fn [db [_ v]]
+   (assoc-in db [:modal :end-chat?] v)))

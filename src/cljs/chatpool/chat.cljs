@@ -59,12 +59,31 @@
         :change-on-blur? false
         :on-change #(re-frame/dispatch-sync [:chat/msg-input %])]])))
 
+(defn end-modal []
+  (let [show? (re-frame/subscribe [:modal/end-chat?])]
+    (when @show?
+      [re-com/modal-panel
+       :child [re-com/v-box
+               :gap "1em"
+               :children [[re-com/title
+                           :level :level3
+                           :label "Are you sure you'd like to end the chat?"]
+                          [re-com/h-box
+                           :gap "1em"
+                           :children [[re-com/button :label "No"
+                                       :on-click #(re-frame/dispatch [:modal/end-chat? false])]
+                                      [re-com/button
+                                       :label "Yes, and email me a chat log"
+                                       :disabled? true]
+                                      [re-com/button :label "Yes"
+                                       :on-click #(re-frame/dispatch [:chat/end])]]]]]])))
+
 (defn end-button []
   "Ends the chat. If a customer, closes the chat panel. If a rep, just
   ends chat."
   [re-com/md-icon-button
    :md-icon-name "zmdi-close"
-   :on-click #(re-frame/dispatch [:chat/enabled? false])])
+   :on-click #(re-frame/dispatch [:modal/end-chat? true])])
 
 (defn name-form []
   "Form for submitting name+email"
@@ -111,4 +130,4 @@
        (if (and @rep-id (not @cust-page))
          [[re-com/label
            :label "No customer connected"]]
-         [[end-button] [container] [msg-input]])])))
+         [[end-modal] [end-button] [container] [msg-input]])])))
