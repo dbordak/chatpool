@@ -63,6 +63,12 @@
 (defn end-conv! [id]
   (-end-conv! {:id id}))
 
+(defn end-conv-for-rep! [id]
+  (-end-conv-for-rep! {:id id}))
+
+(defn end-conv-for-cust! [uid]
+  (-end-conv-for-cust! {:uid uid}))
+
 ;; Customers
 
 (defn create-cust<! [uid name email page]

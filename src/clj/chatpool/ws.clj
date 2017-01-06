@@ -121,11 +121,20 @@
 (defmethod -event-msg-handler :rep/logout
   [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
   (let [rep (db/get-rep uid)]
+    (debugf "rep logged out: %s" (:id rep))
     (db/rep-offline! (:id rep))
-    (debugf "rep logged out: %s" (:id rep)))
+    (db/end-conv-for-rep! (:id rep)))
   (broadcast-idle-list!)
   (when ?reply-fn
     (?reply-fn true)))
+
+(defmethod -event-msg-handler :chat/end
+  [{:as ev-msg :keys [event id uid ?data ring-req ?reply-fn send-fn]}]
+  (let [rep (db/get-rep uid)]
+    (if rep
+      (db/end-conv-for-rep! (:id rep))
+      (db/end-conv-for-cust! uid))
+    (broadcast-idle-list!)))
 
 ;; This is called automatically when the tab is closed/refreshed.
 (defmethod -event-msg-handler :chsk/uidport-close
@@ -134,8 +143,13 @@
   (debugf "client closed tab: %s" uid)
   (let [rep (db/get-rep uid)]
     (if rep
-      (do (db/rep-offline! (:id rep))
-          (broadcast-idle-list!)))))
+      ;; Asymmetric behavior. Basically, if a rep disconnects without
+      ;; logging out, presumably it was a mistake and they can
+      ;; reconnect. If a customer disconnects, there's no recourse so
+      ;; we might as well end the conversation to free up the rep.
+      (db/rep-offline! (:id rep))
+      (db/end-conv-for-cust! uid))
+    (broadcast-idle-list!)))
 
 (defonce router_ (atom nil))
 (defn stop-router! [] (when-let [stop-fn @router_] (stop-fn)))

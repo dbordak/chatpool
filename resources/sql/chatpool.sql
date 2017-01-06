@@ -98,6 +98,16 @@ update convs
 set active = FALSE
 where id = :id;
 
+-- name: -end-conv-for-rep!
+update convs
+set active = FALSE
+where rep_id = :id;
+
+-- name: -end-conv-for-cust!
+update convs
+set active = FALSE
+where cust_uid = :uid;
+
 
 
 -- name: drop-cust-table!
